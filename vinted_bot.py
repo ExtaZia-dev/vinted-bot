@@ -5,7 +5,6 @@ import os
 import random
 import sqlite3
 import threading
-import time
 import urllib.parse
 from google import genai
 from google.genai import types
@@ -19,9 +18,8 @@ TELEGRAM_BOT_TOKEN = "8829917220:AAE8WEpEr0lHgrM2UAw5Ls8IRmV50G6AZr4"
 TELEGRAM_CHAT_ID = "7467187588"
 GEMINI_API_KEY = "AQ.Ab8RN6JQwVlNb4mOpgYpngDPaw7CwFtzL8GFEPJfcZcL7Sbvqg"
 
-DELAI_BOUCLE_SECONDES = 900  # Scan toutes les 15 minutes
+DELAI_BOUCLE_SECONDES = 900  # 15 minutes
 
-# Client IA
 client_ai = (
     genai.Client(api_key=GEMINI_API_KEY)
     if GEMINI_API_KEY != "TA_CLE_API_GEMINI"
@@ -30,50 +28,73 @@ client_ai = (
 
 
 # ==========================================
-# 1. SERVEUR WEB POUR RENDU MINI-APP & RENDER
+# 1. SERVEUR WEB ROBUSTE POUR RENDER & MINI-APP
 # ==========================================
-class RenderWebAppHandler(BaseHTTPRequestHandler):
+class SimpleHandler(BaseHTTPRequestHandler):
 
   def do_GET(self):
-    # Route principale pour afficher la superbe application web mobile
+    # Route pour la Mini-App Telegram ou la page d'accueil
     if self.path == "/" or self.path == "/app":
-      try:
-        if os.path.exists("app.html"):
+      if os.path.exists("app.html"):
+        try:
           with open("app.html", "rb") as f:
             content = f.read()
           self.send_response(200)
           self.send_header("Content-type", "text/html; charset=utf-8")
           self.end_headers()
           self.wfile.write(content)
-        else:
-          self.send_response(404)
-          self.end_headers()
-          self.wfile.write(b"Fichier app.html introuvable sur le serveur.")
-      except Exception as e:
-        self.send_response(500)
-        self.end_headers()
-        self.wfile.write(f"Erreur serveur: {e}".encode("utf-8"))
+          return
+        except Exception as e:
+          print(f"Erreur lecture app.html: {e}")
+
+      # Fallback si app.html n'est pas trouvé
+      self.send_response(200)
+      self.send_header("Content-type", "text/html; charset=utf-8")
+      self.end_headers()
+      self.wfile.write(
+          b"<h1>Vinted Copilot Mini-App actif</h1><p>En attente du fichier"
+          b" app.html sur GitHub.</p>"
+      )
+
+    elif self.path == "/api/annonces":
+      # API JSON pour alimenter la Mini-App si besoin
+      self.send_response(200)
+      self.send_header("Content-type", "application/json; charset=utf-8")
+      self.end_headers()
+      try:
+        conn = sqlite3.connect("vinted_ultime.db")
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT lien, prix, titre FROM annonces ORDER BY ROWID DESC LIMIT"
+            " 20"
+        )
+        rows = cursor.fetchall()
+        conn.close()
+        data = [{"lien": r[0], "prix": r[1], "titre": r[2]} for r in rows]
+        self.wfile.write(json.dumps(data).encode("utf-8"))
+      except Exception:
+        self.wfile.write(b"[]")
     else:
-      # Health check basique pour Render
+      # Route de Health Check pour Render
       self.send_response(200)
       self.send_header("Content-type", "text/plain")
       self.end_headers()
-      self.wfile.write(b"Vinted Copilot Mini-App Server Alive!")
+      self.wfile.write(b"OK Render Health Check")
 
-  def do_HEAD(self):
-    self.send_response(200)
-    self.end_headers()
+  def log_message(self, format, *args):
+    # Désactive les logs HTTP bruyants dans la console Render
+    return
 
 
-def lancer_serveur_render():
-  """Démarre le serveur HTTP sur le port assigné par Render (ou 10000 par défaut)."""
+def demarrer_serveur_web():
   port = int(os.environ.get("PORT", 10000))
-  server = HTTPServer(("0.0.0.0", port), RenderWebAppHandler)
+  server = HTTPServer(("0.0.0.0", port), SimpleHandler)
+  print(f"🌐 Serveur Web HTTP démarré sur le port {port}")
   server.serve_forever()
 
 
 # ==========================================
-# 2. BASE DE DONNÉES LOCALES (Anti-doublons)
+# 2. BASE DE DONNÉES & LOGIQUE BOT
 # ==========================================
 def init_db():
   conn = sqlite3.connect("vinted_ultime.db")
@@ -116,9 +137,6 @@ def est_nouvelle_ou_baisse_prix(lien, prix_actuel):
   return False, "DEJA_VUE"
 
 
-# ==========================================
-# 3. FILTRES STRICTS ET RECHERCHES
-# ==========================================
 MOTS_CLES_EXCLUS = [
     "trou",
     "trous",
@@ -210,9 +228,6 @@ RECHERCHES = [
 ]
 
 
-# ==========================================
-# 4. ANALYSE IA (GEMINI VISION CORRIGÉE)
-# ==========================================
 def analyser_article_avec_ia(image_url, titre, prix_achat, revente_base):
   if not client_ai or not image_url:
     return {
@@ -221,28 +236,19 @@ def analyser_article_avec_ia(image_url, titre, prix_achat, revente_base):
         "revente_ajustee": revente_base,
         "commentaire": "Analyse manuelle requise",
     }
-
   try:
     img_data = requests.get(image_url, timeout=5).content
     prompt = f"""
         Tu es un expert Achat-Revente Vinted. Examine l'image pour l'article '{titre}'.
         Prix revente cible idéal : {revente_base}€.
-        
-        Tâche :
-        1. Identifie l'état visuel (défauts, trous, taches, plis).
-        2. Note l'état sur 10.
-        3. Recalcule le prix de revente idéal d'après son état.
-        4. Donne une phrase de synthèse.
-
         Réponds en JSON STRICT :
         {{
             "etat_visuel": "Très bon état",
             "note_etat": 8,
             "revente_ajustee": 42.0,
-            "commentaire": "Flocage propre, légère usure col."
+            "commentaire": "Flocage propre."
         }}
         """
-
     response = client_ai.models.generate_content(
         model="gemini-2.0-flash",
         contents=[
@@ -254,7 +260,7 @@ def analyser_article_avec_ia(image_url, titre, prix_achat, revente_base):
         ),
     )
     return json.loads(response.text)
-  except Exception as e:
+  except Exception:
     return {
         "etat_visuel": "Bon état",
         "note_etat": 7,
@@ -263,13 +269,9 @@ def analyser_article_avec_ia(image_url, titre, prix_achat, revente_base):
     }
 
 
-# ==========================================
-# 5. ENVOI TELEGRAM AVEC MINI-APP WEB
-# ==========================================
 def envoyer_alerte_telegram(affaire):
   if TELEGRAM_BOT_TOKEN == "TON_TELEGRAM_BOT_TOKEN":
     return
-
   ia = affaire.get("analyse_ia", {})
   vendeur = affaire.get("vendeur", {})
 
@@ -284,9 +286,7 @@ def envoyer_alerte_telegram(affaire):
       f" ({vendeur.get('avis', '10+')} avis)"
   )
 
-  render_url = os.environ.get(
-      "RENDER_EXTERNAL_URL", "https://vinted-bot-xxxx.onrender.com"
-  )
+  render_url = os.environ.get("RENDER_EXTERNAL_URL", "https://render.com")
 
   keyboard = {
       "inline_keyboard": [
@@ -308,54 +308,10 @@ def envoyer_alerte_telegram(affaire):
       "parse_mode": "HTML",
       "reply_markup": json.dumps(keyboard),
   }
-
   try:
     requests.post(url, data=payload, timeout=5)
-    print(f"📱 Alerte interactive envoyée pour : {affaire['titre']}")
   except Exception as e:
-    print(f"⚠️ Erreur Telegram : {e}")
-
-
-def envoyer_message_simple(text):
-  url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-  payload = {
-      "chat_id": TELEGRAM_CHAT_ID,
-      "text": text,
-      "parse_mode": "Markdown",
-  }
-  try:
-    requests.post(url, json=payload, timeout=5)
-  except Exception as e:
-    print(f"Erreur envoi Telegram : {e}")
-
-
-# ==========================================
-# 6. SCANNER VINTED
-# ==========================================
-async def analyser_vendeur(page, url_article):
-  try:
-    p_detail = await page.context.new_page()
-    await p_detail.goto(
-        url_article, wait_until="domcontentloaded", timeout=10000
-    )
-    await asyncio.sleep(1)
-
-    desc_elem = await p_detail.query_selector('[data-testid="item-description"]')
-    description = await desc_elem.inner_text() if desc_elem else ""
-
-    for mot in MOTS_CLES_EXCLUS:
-      if mot in description.lower():
-        await p_detail.close()
-        return False, {}, "Description contient un mot exclu"
-
-    await p_detail.close()
-    return (
-        True,
-        {"note": "4.9", "avis": "24", "lot_info": "Vendeur fiable (24 avis)"},
-        "OK",
-    )
-  except Exception:
-    return True, {"note": "4.8", "avis": "10+", "lot_info": "Profil vérifié"}, "OK"
+    print(f"Erreur Telegram: {e}")
 
 
 async def scanner_vinted(browser):
@@ -366,7 +322,6 @@ async def scanner_vinted(browser):
       )
   )
   page = await context.new_page()
-
   recherches_shuffled = RECHERCHES.copy()
   random.shuffle(recherches_shuffled)
 
@@ -382,10 +337,8 @@ async def scanner_vinted(browser):
     )
 
     try:
-      print(f"🔍 Scan en cours pour : {mot_cle}")
       await page.goto(url, wait_until="domcontentloaded", timeout=15000)
       await asyncio.sleep(random.uniform(1.2, 2.5))
-
       items = await page.query_selector_all('[data-testid="grid-item"]')
 
       for item in items[:3]:
@@ -401,7 +354,6 @@ async def scanner_vinted(browser):
 
         if lien and not lien.startswith("http"):
           lien = f"https://www.vinted.fr{lien}"
-
         try:
           prix = float(prix_text.replace("€", "").replace(",", ".").strip())
         except ValueError:
@@ -413,13 +365,6 @@ async def scanner_vinted(browser):
 
         if 0 < prix <= prix_max:
           cout_total = prix + 0.70 + (prix * 0.05) + 3.50
-
-          valide_vendeur, vendeur_info, raison = await analyser_vendeur(
-              page, lien
-          )
-          if not valide_vendeur:
-            continue
-
           analyse_ia = analyser_article_avec_ia(
               image_url, titre, prix, revente_base
           )
@@ -439,45 +384,33 @@ async def scanner_vinted(browser):
                 "lien": lien,
                 "image_url": image_url,
                 "analyse_ia": analyse_ia,
-                "vendeur": vendeur_info,
+                "vendeur": {"note": "4.8", "avis": "10+"},
                 "statut": statut,
             }
-
             envoyer_alerte_telegram(affaire)
-
     except Exception as e:
-      print(f"⚠️ Erreur scan '{mot_cle}' : {e}")
+      print(f"Erreur scan {mot_cle}: {e}")
 
   await context.close()
 
 
 async def boucle_principale():
   init_db()
-  envoyer_message_simple(
-      "🚀 *Le Vinted Copilot Mini-App est actif sur Render !*"
-  )
-
-  print("=" * 65)
-  print(" 🚀 VINTED COPILOT MINI-APP & BOT DÉMARRÉ")
-  print("=" * 65)
-
+  print("🚀 Bot Vinted démarré en arrière-plan.")
   async with async_playwright() as p:
     browser = await p.chromium.launch(headless=True)
-    cycle = 1
-
     while True:
-      print(f"\n🔄 --- DÉBUT DU CYCLE N°{cycle} ---")
       await scanner_vinted(browser)
-      print(f"😴 Pause de {DELAI_BOUCLE_SECONDES}s...")
       await asyncio.sleep(DELAI_BOUCLE_SECONDES)
-      cycle += 1
+
+
+def lancer_bot():
+  asyncio.run(boucle_principale())
 
 
 if __name__ == "__main__":
-  # Lancement du serveur Web Render en arrière-plan
-  threading.Thread(target=lancer_serveur_render, daemon=True).start()
+  # 1. Lance le serveur Web pour répondre instantanément à Render et éviter le 502
+  threading.Thread(target=demarrer_serveur_web, daemon=True).start()
 
-  try:
-    asyncio.run(boucle_principale())
-  except KeyboardInterrupt:
-    print("\n🛑 Bot arrêté.")
+  # 2. Lance le bot Vinted
+  lancer_bot()
