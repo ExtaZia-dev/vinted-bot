@@ -172,7 +172,7 @@
 
     <script>
         const FALLBACK_IMG = 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=600&q=80';
-        let lienVintedActuel = "https://www.vinted.fr";
+        let lienVintedActuel = "";
 
         if (window.Telegram && window.Telegram.WebApp) {
             window.Telegram.WebApp.ready();
@@ -181,10 +181,13 @@
         }
 
         function ouvrirLienVinted() {
-            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openLink) {
-                window.Telegram.WebApp.openLink(lienVintedActuel);
+            if (!lienVintedActuel) return;
+
+            // Détection et ouverture sécurisée Telegram / Web
+            if (window.Telegram && window.Telegram.WebApp && typeof window.Telegram.WebApp.openLink === 'function') {
+                window.Telegram.WebApp.openLink(lienVintedActuel, { try_instant_view: false });
             } else {
-                window.open(lienVintedActuel, '_blank');
+                window.open(lienVintedActuel, '_blank', 'noopener,noreferrer');
             }
         }
 
@@ -221,70 +224,4 @@
                                 </span>
                             </div>
                             <div class="p-3.5 flex flex-col justify-between flex-1">
-                                <h4 class="text-xs font-medium text-slate-200 line-clamp-2 leading-snug mb-3">${art.titre}</h4>
-                                <div class="flex items-center justify-between pt-2 border-t border-white/5">
-                                    <span class="text-xs font-extrabold text-white">${art.prix} €</span>
-                                    <span class="text-[10px] font-bold text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-lg border border-amber-400/20">
-                                        📈 ${art.revente} €
-                                    </span>
-                                </div>
-                            </div>
-                        `;
-                        container.appendChild(card);
-                    });
-                }
-
-                loading.classList.add('hidden');
-                container.classList.remove('hidden');
-
-            } catch (err) {
-                console.error("Erreur de récupération :", err);
-            }
-        }
-
-        function ouvrirModal(article) {
-            lienVintedActuel = article.lien;
-            
-            const modalImg = document.getElementById('modal-img');
-            modalImg.src = article.image;
-            modalImg.onerror = function() {
-                this.onerror = null;
-                this.src = FALLBACK_IMG;
-            };
-
-            document.getElementById('modal-cat').innerText = article.type_article || 'ÉDITION LIMITÉE';
-            document.getElementById('modal-title').innerText = article.titre;
-            document.getElementById('modal-prix').innerText = `${article.prix} €`;
-            document.getElementById('modal-revente').innerText = `${article.revente} €`;
-            document.getElementById('modal-benefice').innerText = `+${article.benefice} €`;
-
-            if (article.ia) {
-                document.getElementById('modal-ai-score').innerText = `${article.ia.note || 9.0}/10`;
-                document.getElementById('modal-ai-comment').innerText = article.ia.commentaire || "Analyse de valeur certifiée par l'IA Copilot.";
-            }
-
-            const badgeContainer = document.getElementById('modal-badge-container');
-            const badgeColor = article.statut === 'NOUVELLE' ? 'bg-amber-400 text-slate-950 font-black' : 'bg-blue-500 text-white font-bold';
-            badgeContainer.innerHTML = `<span class="${badgeColor} text-[9px] px-3 py-1 rounded-xl shadow-lg uppercase tracking-widest">${article.statut || 'Nouveau'}</span>`;
-
-            const modal = document.getElementById('product-modal');
-            const box = document.getElementById('modal-content-box');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            setTimeout(() => box.classList.remove('translate-y-full'), 10);
-        }
-
-        function fermerModal() {
-            const modal = document.getElementById('product-modal');
-            const box = document.getElementById('modal-content-box');
-            box.classList.add('translate-y-full');
-            setTimeout(() => {
-                modal.classList.remove('flex');
-                modal.classList.add('hidden');
-            }, 300);
-        }
-
-        document.addEventListener('DOMContentLoaded', chargerAnnonces);
-    </script>
-</body>
-</html>
+                                <h4 class="text-xs font-medium text-slate-200 line-clamp-2
