@@ -19,7 +19,7 @@ TELEGRAM_BOT_TOKEN = "8829917220:AAE8WEpEr0lHgrM2UAw5Ls8IRmV50G6AZr4"
 TELEGRAM_CHAT_ID = "7467187588"
 GEMINI_API_KEY = "AQ.Ab8RN6JQwVlNb4mOpgYpngDPaw7CwFtzL8GFEPJfcZcL7Sbvqg"
 
-DELAI_BOUCLE_SECONDES = 300  # Scan toutes les 5 minutes pour plus de réactivité
+DELAI_BOUCLE_SECONDES = 900  # Scan toutes les 15 minutes
 
 # Client IA
 client_ai = (
@@ -30,15 +30,35 @@ client_ai = (
 
 
 # ==========================================
-# 1. SERVEUR WEB HEALTH CHECK POUR RENDER
+# 1. SERVEUR WEB POUR RENDU MINI-APP & RENDER
 # ==========================================
-class RenderHealthHandler(BaseHTTPRequestHandler):
+class RenderWebAppHandler(BaseHTTPRequestHandler):
 
   def do_GET(self):
-    self.send_response(200)
-    self.send_header("Content-type", "text/html")
-    self.end_headers()
-    self.wfile.write(b"Bot Vinted & WebApp Alive!")
+    # Route principale pour afficher la superbe application web mobile
+    if self.path == "/" or self.path == "/app":
+      try:
+        if os.path.exists("app.html"):
+          with open("app.html", "rb") as f:
+            content = f.read()
+          self.send_response(200)
+          self.send_header("Content-type", "text/html; charset=utf-8")
+          self.end_headers()
+          self.wfile.write(content)
+        else:
+          self.send_response(404)
+          self.end_headers()
+          self.wfile.write(b"Fichier app.html introuvable sur le serveur.")
+      except Exception as e:
+        self.send_response(500)
+        self.end_headers()
+        self.wfile.write(f"Erreur serveur: {e}".encode("utf-8"))
+    else:
+      # Health check basique pour Render
+      self.send_response(200)
+      self.send_header("Content-type", "text/plain")
+      self.end_headers()
+      self.wfile.write(b"Vinted Copilot Mini-App Server Alive!")
 
   def do_HEAD(self):
     self.send_response(200)
@@ -46,14 +66,14 @@ class RenderHealthHandler(BaseHTTPRequestHandler):
 
 
 def lancer_serveur_render():
-  """Démarre le serveur HTTP pour satisfaire le Port Binding de Render."""
+  """Démarre le serveur HTTP sur le port assigné par Render (ou 10000 par défaut)."""
   port = int(os.environ.get("PORT", 10000))
-  server = HTTPServer(("0.0.0.0", port), RenderHealthHandler)
+  server = HTTPServer(("0.0.0.0", port), RenderWebAppHandler)
   server.serve_forever()
 
 
 # ==========================================
-# 2. BASE DE DONNÉES LOCALES (Anti-doublons & Baisses)
+# 2. BASE DE DONNÉES LOCALES (Anti-doublons)
 # ==========================================
 def init_db():
   conn = sqlite3.connect("vinted_ultime.db")
@@ -97,7 +117,7 @@ def est_nouvelle_ou_baisse_prix(lien, prix_actuel):
 
 
 # ==========================================
-# 3. FILTRES STRICTS ET LISTE DES RECHERCHES
+# 3. FILTRES STRICTS ET RECHERCHES
 # ==========================================
 MOTS_CLES_EXCLUS = [
     "trou",
@@ -191,7 +211,7 @@ RECHERCHES = [
 
 
 # ==========================================
-# 4. ANALYSE IA (GEMINI VISION)
+# 4. ANALYSE IA (GEMINI VISION CORRIGÉE)
 # ==========================================
 def analyser_article_avec_ia(image_url, titre, prix_achat, revente_base):
   if not client_ai or not image_url:
@@ -224,7 +244,7 @@ def analyser_article_avec_ia(image_url, titre, prix_achat, revente_base):
         """
 
     response = client_ai.models.generate_content(
-        model="gemini-2.5-flash",
+        model="gemini-2.0-flash",
         contents=[
             types.Part.from_bytes(data=img_data, mime_type="image/jpeg"),
             prompt,
@@ -239,12 +259,12 @@ def analyser_article_avec_ia(image_url, titre, prix_achat, revente_base):
         "etat_visuel": "Bon état",
         "note_etat": 7,
         "revente_ajustee": revente_base,
-        "commentaire": f"Standard (Erreur IA: {e})",
+        "commentaire": "Standard",
     }
 
 
 # ==========================================
-# 5. ENVOI TELEGRAM AVEC BOUTONS INTERACTIFS
+# 5. ENVOI TELEGRAM AVEC MINI-APP WEB
 # ==========================================
 def envoyer_alerte_telegram(affaire):
   if TELEGRAM_BOT_TOKEN == "TON_TELEGRAM_BOT_TOKEN":
@@ -259,22 +279,24 @@ def envoyer_alerte_telegram(affaire):
       f" {affaire['revente_finale']} €\n"
       f"💵 <b>BÉNÉFICE NET :</b> +{affaire['benefice']} €\n\n"
       f"🤖 <b>IA :</b> {ia.get('etat_visuel', 'OK')}"
-      f" ({ia.get('note_etat', 8)}/10) - <i>{ia.get('commentaire', '')}</i>\n"
+      f" ({ia.get('note_etat', 8)}/10)\n"
       f"👤 <b>Vendeur :</b> ⭐ {vendeur.get('note', '4.8')}"
       f" ({vendeur.get('avis', '10+')} avis)"
   )
 
+  render_url = os.environ.get(
+      "RENDER_EXTERNAL_URL", "https://vinted-bot-xxxx.onrender.com"
+  )
+
   keyboard = {
       "inline_keyboard": [
-          [{"text": "🛒 Ouvrir la Fiche Vinted", "url": affaire["lien"]}],
-          [{
-              "text": "📱 Négocier à -15%",
-              "url": (
-                  "https://t.me/share/url?url=Bonjour,%20proposez-vous%20un%20prix%20a%20"
-                  + str(round(affaire["prix"] * 0.85, 1))
-                  + "%20€%20?"
-              ),
-          }],
+          [
+              {
+                  "text": "📱 Ouvrir la Mini-App Vinted",
+                  "web_app": {"url": f"{render_url}/app"},
+              }
+          ],
+          [{"text": "🛒 Ouvrir la Fiche Vinted Direct", "url": affaire["lien"]}],
       ]
   }
 
@@ -308,10 +330,9 @@ def envoyer_message_simple(text):
 
 
 # ==========================================
-# 6. SCANNER ET VERIFICATION COMPLÈTE
+# 6. SCANNER VINTED
 # ==========================================
 async def analyser_vendeur(page, url_article):
-  """Analyse la description et le profil vendeur."""
   try:
     p_detail = await page.context.new_page()
     await p_detail.goto(
@@ -393,14 +414,12 @@ async def scanner_vinted(browser):
         if 0 < prix <= prix_max:
           cout_total = prix + 0.70 + (prix * 0.05) + 3.50
 
-          # 1. Analyse Vendeur & Description
           valide_vendeur, vendeur_info, raison = await analyser_vendeur(
               page, lien
           )
           if not valide_vendeur:
             continue
 
-          # 2. Analyse IA Vision
           analyse_ia = analyser_article_avec_ia(
               image_url, titre, prix, revente_base
           )
@@ -434,15 +453,12 @@ async def scanner_vinted(browser):
 
 async def boucle_principale():
   init_db()
-
-  # Message de confirmation au lancement
   envoyer_message_simple(
-      "🚀 *Le Bot Vinted Ultime (Vêtements & IA) est démarré et actif sur"
-      " Render !*"
+      "🚀 *Le Vinted Copilot Mini-App est actif sur Render !*"
   )
 
   print("=" * 65)
-  print(" 🚀 BOT ULTIME VINTED COPILOT DÉMARRÉ")
+  print(" 🚀 VINTED COPILOT MINI-APP & BOT DÉMARRÉ")
   print("=" * 65)
 
   async with async_playwright() as p:
@@ -452,15 +468,13 @@ async def boucle_principale():
     while True:
       print(f"\n🔄 --- DÉBUT DU CYCLE N°{cycle} ---")
       await scanner_vinted(browser)
-      print(
-          f"😴 Pause de {DELAI_BOUCLE_SECONDES}s avant le prochain cycle..."
-      )
+      print(f"😴 Pause de {DELAI_BOUCLE_SECONDES}s...")
       await asyncio.sleep(DELAI_BOUCLE_SECONDES)
       cycle += 1
 
 
 if __name__ == "__main__":
-  # Lancement du serveur Web Render en tâche de fond (daemon)
+  # Lancement du serveur Web Render en arrière-plan
   threading.Thread(target=lancer_serveur_render, daemon=True).start()
 
   try:
