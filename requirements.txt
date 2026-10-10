@@ -1,3 +1,4 @@
 playwright
-requests
 google-genai
+requests
+flask
