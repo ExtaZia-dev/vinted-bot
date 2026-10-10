@@ -8,9 +8,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Telegram WebApp Script -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- FontAwesome Pro / Icons -->
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- Google Fonts Premium -->
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
@@ -25,11 +25,6 @@
                         serif: ['"Playfair Display"', 'serif'],
                     },
                     colors: {
-                        gold: {
-                            400: '#FACC15',
-                            500: '#EAB308',
-                            600: '#CA8A04',
-                        },
                         onyx: '#0B0F17',
                         cardDark: '#131924',
                     }
@@ -48,17 +43,12 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        .gold-border-glow {
-            box-shadow: 0 0 15px rgba(250, 204, 21, 0.08);
-        }
         .glass-panel {
             background: rgba(19, 25, 36, 0.75);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="text-slate-100 min-h-screen pb-24 select-none">
@@ -108,13 +98,13 @@
             </button>
         </div>
 
-        <!-- SKELETON LOADING LUXE -->
+        <!-- SKELETON LOADING -->
         <div id="loading-state" class="grid grid-cols-2 gap-4">
             <div class="bg-cardDark rounded-3xl h-72 animate-pulse border border-white/5"></div>
             <div class="bg-cardDark rounded-3xl h-72 animate-pulse border border-white/5"></div>
         </div>
 
-        <!-- GRILLE D'ARTICLES LUXE -->
+        <!-- GRILLE D'ARTICLES -->
         <div id="annonces-container" class="grid grid-cols-2 gap-4 hidden">
             <!-- Injecté par JavaScript -->
         </div>
@@ -128,7 +118,7 @@
             
             <!-- CONTENEUR IMAGE DÉTAILLÉE -->
             <div class="relative rounded-2xl overflow-hidden mb-5 bg-cardDark aspect-square border border-white/10 shadow-2xl">
-                <img id="modal-img" src="" alt="Produit Luxe" class="w-full h-full object-cover">
+                <img id="modal-img" src="" referrerpolicy="no-referrer" alt="Produit Luxe" class="w-full h-full object-cover">
                 <div id="modal-badge-container" class="absolute top-3 left-3"></div>
             </div>
 
@@ -169,10 +159,10 @@
 
             <!-- BOUTONS D'ACTION VIP -->
             <div class="grid grid-cols-2 gap-3">
-                <a id="modal-btn-buy" target="_blank" class="w-full py-4 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-extrabold text-xs uppercase tracking-wider rounded-2xl flex items-center justify-center space-x-2 shadow-lg shadow-amber-500/20 active:scale-95 transition">
+                <button id="modal-btn-buy" onclick="ouvrirLienVinted()" class="w-full py-4 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-extrabold text-xs uppercase tracking-wider rounded-2xl flex items-center justify-center space-x-2 shadow-lg shadow-amber-500/20 active:scale-95 transition">
                     <i class="fa-solid fa-bag-shopping text-sm"></i>
                     <span>Acheter Vinted</span>
-                </a>
+                </button>
                 <button onclick="fermerModal()" class="w-full py-4 bg-cardDark hover:bg-slate-800 text-slate-300 font-semibold text-xs uppercase tracking-wider rounded-2xl border border-white/5 active:scale-95 transition">
                     Fermer
                 </button>
@@ -181,11 +171,21 @@
     </div>
 
     <script>
-        // Initialisation de Telegram WebApp
+        const FALLBACK_IMG = 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=600&q=80';
+        let lienVintedActuel = "https://www.vinted.fr";
+
         if (window.Telegram && window.Telegram.WebApp) {
             window.Telegram.WebApp.ready();
             window.Telegram.WebApp.expand();
             window.Telegram.WebApp.setHeaderColor('#080B11');
+        }
+
+        function ouvrirLienVinted() {
+            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openLink) {
+                window.Telegram.WebApp.openLink(lienVintedActuel);
+            } else {
+                window.open(lienVintedActuel, '_blank');
+            }
         }
 
         async function chargerAnnonces() {
@@ -214,7 +214,7 @@
 
                         card.innerHTML = `
                             <div class="relative aspect-square bg-onyx overflow-hidden">
-                                <img src="${art.image}" alt="${art.titre}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                                <img src="${art.image}" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src='${FALLBACK_IMG}';" alt="${art.titre}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                                 <div class="absolute inset-0 bg-gradient-to-t from-onyx via-transparent to-transparent opacity-60"></div>
                                 <span class="absolute top-2.5 left-2.5 bg-onyx/80 backdrop-blur-md text-emerald-400 text-[10px] font-extrabold px-2.5 py-1 rounded-xl border border-emerald-500/30">
                                     +${art.benefice} €
@@ -243,13 +243,20 @@
         }
 
         function ouvrirModal(article) {
-            document.getElementById('modal-img').src = article.image;
+            lienVintedActuel = article.lien;
+            
+            const modalImg = document.getElementById('modal-img');
+            modalImg.src = article.image;
+            modalImg.onerror = function() {
+                this.onerror = null;
+                this.src = FALLBACK_IMG;
+            };
+
             document.getElementById('modal-cat').innerText = article.type_article || 'ÉDITION LIMITÉE';
             document.getElementById('modal-title').innerText = article.titre;
             document.getElementById('modal-prix').innerText = `${article.prix} €`;
             document.getElementById('modal-revente').innerText = `${article.revente} €`;
             document.getElementById('modal-benefice').innerText = `+${article.benefice} €`;
-            document.getElementById('modal-btn-buy').href = article.lien;
 
             if (article.ia) {
                 document.getElementById('modal-ai-score').innerText = `${article.ia.note || 9.0}/10`;
