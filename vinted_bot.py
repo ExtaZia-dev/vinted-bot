@@ -1,7 +1,30 @@
+import os
+from http.server import BaseHTTPRequestHandler, HTTPServer
+import threading
 import time
 import requests
 from google import genai
 from playwright.sync_api import sync_playwright
+
+# ==========================================
+# PETIT SERVEUR WEB POUR RENDER (Garde le service actif)
+# ==========================================
+class SimpleHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"Bot Vinted is alive and running!")
+
+
+def run_web_server():
+    port = int(os.environ.get("PORT", 10000))
+    server = HTTPServer(("0.0.0.0", port), SimpleHandler)
+    server.serve_forever()
+
+
+# Lancement du serveur web en arrière-plan
+threading.Thread(target=run_web_server, daemon=True).start()
+
 
 # ==========================================
 # TES IDENTIFIANTS ET CLÉS
@@ -57,7 +80,7 @@ def analyze_with_gemini(image_url, title, price):
 def run_bot():
     print("Lancement du bot Vinted...")
     send_telegram_message(
-        "🤖 *Le bot Vinted est bien démarré et en veille sur Koyeb !*"
+        "🤖 *Le bot Vinted est bien démarré et en veille sur Render !*"
     )
 
     with sync_playwright() as p:
@@ -94,7 +117,9 @@ def run_bot():
                         if item_id not in seen_items:
                             seen_items.add(item_id)
 
-                            ai_analysis = analyze_with_gemini(img_elem, title_elem, price_elem)
+                            ai_analysis = analyze_with_gemini(
+                                img_elem, title_elem, price_elem
+                            )
 
                             message = (
                                 f"🔥 *Nouvelle opportunité détectée !*\n\n"
