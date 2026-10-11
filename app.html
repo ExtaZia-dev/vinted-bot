@@ -3,7 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>VAULT // Monochromatique Ultimate</title>
+    <title>VAULT</title>
+
+    <!-- METATAGS PWA / MODE APPLI AUTONOME iOS (Instagram Style) -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Vault">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#000000">
+
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Telegram WebApp Script -->
@@ -73,7 +81,7 @@
                 </div>
                 <div>
                     <h1 class="font-serif italic font-bold text-base leading-none tracking-widest mono-gradient">VAULT</h1>
-                    <span class="text-[7px] font-bold tracking-[0.3em] text-neutral-500 uppercase">Ultimate Edition</span>
+                    <span class="text-[7px] font-bold tracking-[0.3em] text-neutral-500 uppercase">Live Sync 60s</span>
                 </div>
             </div>
             
@@ -83,7 +91,7 @@
                     <span class="text-[10px] font-bold tracking-wider text-neutral-300 uppercase" id="stat-count">0 Pépites</span>
                 </div>
                 <button onclick="chargerAnnonces()" class="w-8 h-8 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-300 active:scale-95 transition">
-                    <i class="fa-solid fa-arrows-rotate text-[11px]"></i>
+                    <i class="fa-solid fa-arrows-rotate text-[11px]" id="refresh-icon"></i>
                 </button>
             </div>
         </div>
@@ -203,7 +211,10 @@
         async function chargerAnnonces() {
             const container = document.getElementById('annonces-container');
             const loading = document.getElementById('loading-state');
-            
+            const icon = document.getElementById('refresh-icon');
+
+            if (icon) icon.classList.add('fa-spin');
+
             try {
                 const response = await fetch('/api/annonces');
                 listeArticlesGlobale = await response.json();
@@ -211,11 +222,13 @@
                 document.getElementById('stat-count').innerText = `${listeArticlesGlobale.length} Pépites`;
                 afficherArticles();
 
-                loading.classList.add('hidden');
-                container.classList.remove('hidden');
+                if (loading) loading.classList.add('hidden');
+                if (container) container.classList.remove('hidden');
 
             } catch (err) {
-                console.error("Erreur chargement :", err);
+                console.error("Erreur auto-sync :", err);
+            } finally {
+                if (icon) setTimeout(() => icon.classList.remove('fa-spin'), 500);
             }
         }
 
@@ -339,7 +352,10 @@
             }, 300);
         }
 
-        document.addEventListener('DOMContentLoaded', chargerAnnonces);
+        document.addEventListener('DOMContentLoaded', () => {
+            chargerAnnonces();
+            setInterval(chargerAnnonces, 60000);
+        });
     </script>
 </body>
 </html>
