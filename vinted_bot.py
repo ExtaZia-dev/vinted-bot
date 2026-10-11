@@ -1,17 +1,8 @@
-import socket
-
-# --- CORRECTIF RENDANT L'IPV4 OBLIGATOIRE SUR RENDER ---
-old_getaddrinfo = socket.getaddrinfo
-def new_getaddrinfo(*args, **kwargs):
-    responses = old_getaddrinfo(*args, **kwargs)
-    return [r for r in responses if r[0] == socket.AF_INET]
-socket.getaddrinfo = new_getaddrinfo
-# ------------------------------------------------------
-
 import asyncio
 import json
 import os
 import random
+import socket
 import threading
 import urllib.parse
 from flask import Flask, jsonify, send_file
@@ -30,10 +21,29 @@ app = Flask(__name__)
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
 # ------------------------------------------------------------------
-# BASE DE DONNÉES (SUPABASE)
+# BASE DE DONNÉES (SUPABASE AVEC CONTOURNEMENT IPV4)
 # ------------------------------------------------------------------
 def get_db_connection():
-    return psycopg2.connect(DATABASE_URL)
+    parsed_url = urllib.parse.urlparse(DATABASE_URL)
+    hostname = parsed_url.hostname
+    port = parsed_url.port or 6543
+    
+    # Résolution manuelle stricte en IPv4 pour contourner Render/Libpq
+    ipv4_host = hostname
+    try:
+        addrs = socket.getaddrinfo(hostname, port, socket.AF_INET, socket.SOCK_STREAM)
+        if addrs:
+            ipv4_host = addrs[0][4][0]  # Récupère la première IP IPv4
+    except Exception as e:
+        print(f"⚠️ [DB] Erreur résolution IPv4, utilisation du host par défaut: {e}", flush=True)
+
+    return psycopg2.connect(
+        host=ipv4_host,
+        port=port,
+        database=parsed_url.path.lstrip('/'),
+        user=parsed_url.username,
+        password=parsed_url.password
+    )
 
 def init_db():
     try:
