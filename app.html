@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>VAULT // Monochromatique</title>
+    <title>VAULT // Monochromatique Ultimate</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Telegram WebApp Script -->
@@ -46,62 +46,95 @@
             -webkit-text-fill-color: transparent;
         }
         .glass-vault {
-            background: rgba(12, 12, 12, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(10, 10, 10, 0.92);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
     </style>
 </head>
-<body class="text-slate-100 min-h-screen pb-24 select-none">
+<body class="text-slate-100 min-h-screen pb-28 select-none">
 
-    <!-- HEADER MONOCHROME LUXE -->
-    <header class="sticky top-0 z-40 glass-vault px-5 py-4 flex items-center justify-between pt-11">
-        <div class="flex items-center space-x-3">
-            <div class="w-9 h-9 rounded-full bg-white p-[1px] shadow-2xl">
-                <div class="w-full h-full bg-black rounded-full flex items-center justify-center">
-                    <i class="fa-solid fa-gem text-white text-xs"></i>
+    <!-- HEADER ULTIME AVEC BARRE DE RECHERCHE -->
+    <header class="sticky top-0 z-40 glass-vault px-5 py-3 pt-11">
+        <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-full bg-white p-[1px] shadow-2xl">
+                    <div class="w-full h-full bg-black rounded-full flex items-center justify-center">
+                        <i class="fa-solid fa-gem text-white text-[11px]"></i>
+                    </div>
+                </div>
+                <div>
+                    <h1 class="font-serif italic font-bold text-base leading-none tracking-widest mono-gradient">VAULT</h1>
+                    <span class="text-[7px] font-bold tracking-[0.3em] text-neutral-500 uppercase">Ultimate Edition</span>
                 </div>
             </div>
-            <div>
-                <h1 class="font-serif italic font-bold text-base leading-none tracking-widest mono-gradient">VAULT</h1>
-                <span class="text-[8px] font-bold tracking-[0.3em] text-neutral-500 uppercase">Black & White Edition</span>
+            
+            <div class="flex items-center space-x-2">
+                <div class="bg-neutral-900 border border-neutral-800 px-3 py-1 rounded-full flex items-center space-x-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+                    <span class="text-[10px] font-bold tracking-wider text-neutral-300 uppercase" id="stat-count">0 Pépites</span>
+                </div>
+                <button onclick="chargerAnnonces()" class="w-8 h-8 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-300 active:scale-95 transition">
+                    <i class="fa-solid fa-arrows-rotate text-[11px]"></i>
+                </button>
             </div>
         </div>
-        
-        <div class="flex items-center space-x-2">
-            <div class="bg-neutral-900 border border-neutral-800 px-3 py-1 rounded-full flex items-center space-x-2">
-                <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
-                <span class="text-[10px] font-bold tracking-wider text-neutral-300 uppercase" id="stat-count">0 Pépites</span>
-            </div>
+
+        <!-- RECHERCHE TEXTUELLE TEMPS RÉEL -->
+        <div class="relative mb-3">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-neutral-500 text-xs"></i>
+            <input type="text" id="search-input" oninput="filtrerParRecherche()" placeholder="Rechercher une pépite, marque, sneakers..." class="w-full bg-cardGray border border-neutral-800 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-neutral-600 transition">
+        </div>
+
+        <!-- FILTRES PAR BADGES / PILLS -->
+        <div class="flex space-x-2 overflow-x-auto no-scrollbar pt-1 pb-1">
+            <button onclick="filtrerMarque('TOUS')" id="btn-tous" class="px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-white text-black transition shrink-0">Tous</button>
+            <button onclick="filtrerMarque('Sneakers')" id="btn-sneakers" class="px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-neutral-900 text-neutral-400 border border-neutral-800 transition shrink-0">👟 Sneakers</button>
+            <button onclick="filtrerMarque('Ralph Lauren')" id="btn-ralph" class="px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-neutral-900 text-neutral-400 border border-neutral-800 transition shrink-0">Ralph Lauren</button>
+            <button onclick="filtrerMarque('Carhartt')" id="btn-carhartt" class="px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-neutral-900 text-neutral-400 border border-neutral-800 transition shrink-0">Carhartt</button>
+            <button onclick="filtrerMarque('Techwear')" id="btn-techwear" class="px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-neutral-900 text-neutral-400 border border-neutral-800 transition shrink-0">Techwear</button>
+            <button onclick="filtrerMarque('Streetwear')" id="btn-streetwear" class="px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-neutral-900 text-neutral-400 border border-neutral-800 transition shrink-0">Streetwear</button>
         </div>
     </header>
 
-    <!-- MAIN CONTENT -->
+    <!-- MAIN FEED (SCROLL INFINI) -->
     <main class="p-4 max-w-md mx-auto">
+        
+        <!-- BARRE DE TRI -->
         <div class="flex items-center justify-between mb-4 px-1">
-            <span class="text-[10px] font-extrabold uppercase tracking-[0.25em] text-neutral-500">Sélection Exclusive Live</span>
-            <button onclick="chargerAnnonces()" class="text-xs text-neutral-300 hover:text-white flex items-center space-x-1.5 active:scale-95 transition">
-                <i class="fa-solid fa-arrows-rotate text-[10px]"></i>
-                <span class="font-medium tracking-wide">Actualiser</span>
-            </button>
+            <span class="text-[10px] font-extrabold uppercase tracking-[0.2em] text-neutral-500">Flux En Direct</span>
+            <select id="tri-select" onchange="triAnnonces()" class="bg-cardGray border border-neutral-800 text-neutral-300 text-[10px] rounded-lg px-2 py-1 font-bold focus:outline-none">
+                <option value="recent">Plus Récent</option>
+                <option value="benefice">Bénéfice Max</option>
+                <option value="prix_asc">Prix Croissant</option>
+            </select>
         </div>
 
         <!-- SKELETON LOADING -->
         <div id="loading-state" class="grid grid-cols-2 gap-3">
-            <div class="bg-cardGray rounded-2xl h-64 animate-pulse border border-neutral-900"></div>
-            <div class="bg-cardGray rounded-2xl h-64 animate-pulse border border-neutral-900"></div>
+            <div class="bg-cardGray rounded-2xl h-72 animate-pulse border border-neutral-900"></div>
+            <div class="bg-cardGray rounded-2xl h-72 animate-pulse border border-neutral-900"></div>
+            <div class="bg-cardGray rounded-2xl h-72 animate-pulse border border-neutral-900"></div>
+            <div class="bg-cardGray rounded-2xl h-72 animate-pulse border border-neutral-900"></div>
         </div>
 
         <!-- GRILLE D'ARTICLES -->
-        <div id="annonces-container" class="grid grid-cols-2 gap-3 hidden">
-            <!-- Injecté par JS -->
+        <div id="annonces-container" class="grid grid-cols-2 gap-3.5 hidden">
+            <!-- Injecté via JS -->
         </div>
     </main>
 
-    <!-- MODAL POPUP SHOWROOM NOIR & BLANC -->
-    <div id="product-modal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-lg hidden flex-col justify-end transition-all duration-300">
-        <div id="modal-content-box" class="bg-vaultGray border-t border-neutral-800 rounded-t-[32px] max-h-[88vh] overflow-y-auto p-6 transform translate-y-full transition-transform duration-300 ease-out shadow-2xl pb-12">
+    <!-- POPUP MODAL SHOWROOM -->
+    <div id="product-modal" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl hidden flex-col justify-end transition-all duration-300">
+        <div id="modal-content-box" class="bg-vaultGray border-t border-neutral-800 rounded-t-[36px] max-h-[88vh] overflow-y-auto p-6 transform translate-y-full transition-transform duration-300 ease-out shadow-2xl pb-12">
             
             <div class="w-10 h-1 bg-neutral-800 rounded-full mx-auto mb-5"></div>
             
@@ -112,14 +145,14 @@
             <div class="flex items-center justify-between mb-2">
                 <span id="modal-cat" class="text-[10px] font-black text-neutral-400 uppercase tracking-[0.25em]"></span>
                 <div class="flex items-center space-x-1 text-white text-xs font-bold bg-neutral-900 px-2.5 py-1 rounded-lg border border-neutral-800">
-                    <i class="fa-solid fa-star text-[10px] text-white"></i>
-                    <span id="modal-ai-score">9.4/10</span>
+                    <i class="fa-solid fa-gem text-[10px] text-white"></i>
+                    <span>Verified Vault</span>
                 </div>
             </div>
 
             <h3 id="modal-title" class="text-sm font-bold text-white mb-5 leading-snug"></h3>
 
-            <div class="grid grid-cols-3 gap-2 bg-cardGray p-3.5 rounded-2xl border border-neutral-900 mb-6 text-center">
+            <div class="grid grid-cols-3 gap-2 bg-cardGray p-4 rounded-2xl border border-neutral-900 mb-6 text-center">
                 <div>
                     <span class="block text-[8px] text-neutral-500 font-bold uppercase tracking-wider">Achat</span>
                     <span id="modal-prix" class="text-xs font-bold text-white mt-1 block"></span>
@@ -149,6 +182,8 @@
     <script>
         const FALLBACK_IMG = 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=600&q=80';
         let lienVintedActuel = "";
+        let listeArticlesGlobale = [];
+        let marqueActive = 'TOUS';
 
         if (window.Telegram && window.Telegram.WebApp) {
             window.Telegram.WebApp.ready();
@@ -171,51 +206,104 @@
             
             try {
                 const response = await fetch('/api/annonces');
-                const articles = await response.json();
+                listeArticlesGlobale = await response.json();
 
-                document.getElementById('stat-count').innerText = `${articles.length} Pépites`;
-                container.innerHTML = '';
-
-                if (articles.length === 0) {
-                    container.innerHTML = `
-                        <div class="col-span-2 text-center py-20 text-neutral-600">
-                            <i class="fa-solid fa-circle-notch fa-spin text-xl text-neutral-400 mb-3 block"></i>
-                            <p class="text-[11px] font-medium tracking-wider uppercase">Scan Vault en cours...</p>
-                        </div>
-                    `;
-                } else {
-                    articles.forEach(art => {
-                        const card = document.createElement('div');
-                        card.className = "bg-cardGray rounded-2xl border border-neutral-900 overflow-hidden flex flex-col justify-between active:scale-[0.97] transition duration-200 cursor-pointer shadow-lg relative group";
-                        card.onclick = () => ouvrirModal(art);
-
-                        card.innerHTML = `
-                            <div class="relative aspect-square bg-black overflow-hidden">
-                                <img src="${art.image}" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src='${FALLBACK_IMG}';" alt="${art.titre}" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition duration-500">
-                                <span class="absolute top-2 left-2 bg-black/90 backdrop-blur-md text-white text-[9px] font-extrabold px-2 py-0.5 rounded-lg border border-neutral-800">
-                                    +${art.benefice} €
-                                </span>
-                            </div>
-                            <div class="p-3 flex flex-col justify-between flex-1">
-                                <h4 class="text-[11px] font-medium text-neutral-200 line-clamp-2 leading-tight mb-2">${art.titre}</h4>
-                                <div class="flex items-center justify-between pt-2 border-t border-neutral-900">
-                                    <span class="text-xs font-bold text-white">${art.prix} €</span>
-                                    <span class="text-[9px] font-bold text-neutral-400">
-                                        📈 ${art.revente} €
-                                    </span>
-                                </div>
-                            </div>
-                        `;
-                        container.appendChild(card);
-                    });
-                }
+                document.getElementById('stat-count').innerText = `${listeArticlesGlobale.length} Pépites`;
+                afficherArticles();
 
                 loading.classList.add('hidden');
                 container.classList.remove('hidden');
 
             } catch (err) {
-                console.error("Erreur :", err);
+                console.error("Erreur chargement :", err);
             }
+        }
+
+        function filtrerMarque(marque) {
+            marqueActive = marque;
+            
+            ['tous', 'sneakers', 'ralph', 'carhartt', 'techwear', 'streetwear'].forEach(id => {
+                const btn = document.getElementById(`btn-${id}`);
+                if (btn) btn.className = "px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-neutral-900 text-neutral-400 border border-neutral-800 transition shrink-0";
+            });
+
+            const activeBtnId = marque === 'TOUS' ? 'btn-tous' : 
+                                marque === 'Sneakers' ? 'btn-sneakers' : 
+                                marque === 'Ralph Lauren' ? 'btn-ralph' : 
+                                marque === 'Carhartt' ? 'btn-carhartt' : 
+                                marque === 'Techwear' ? 'btn-techwear' : 'btn-streetwear';
+            
+            const activeBtn = document.getElementById(activeBtnId);
+            if (activeBtn) activeBtn.className = "px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-white text-black transition shrink-0";
+
+            afficherArticles();
+        }
+
+        function filtrerParRecherche() {
+            afficherArticles();
+        }
+
+        function triAnnonces() {
+            const mode = document.getElementById('tri-select').value;
+            if (mode === 'benefice') {
+                listeArticlesGlobale.sort((a, b) => b.benefice - a.benefice);
+            } else if (mode === 'prix_asc') {
+                listeArticlesGlobale.sort((a, b) => a.prix - b.prix);
+            } else {
+                listeArticlesGlobale.sort((a, b) => b.id - a.id);
+            }
+            afficherArticles();
+        }
+
+        function afficherArticles() {
+            const container = document.getElementById('annonces-container');
+            const rechercheText = document.getElementById('search-input').value.toLowerCase();
+            container.innerHTML = '';
+
+            let articlesFiltres = listeArticlesGlobale;
+
+            if (marqueActive !== 'TOUS') {
+                articlesFiltres = articlesFiltres.filter(art => art.type_article.toLowerCase().includes(marqueActive.toLowerCase()));
+            }
+
+            if (rechercheText.trim() !== '') {
+                articlesFiltres = articlesFiltres.filter(art => art.titre.toLowerCase().includes(rechercheText));
+            }
+
+            if (articlesFiltres.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-2 text-center py-24 text-neutral-600">
+                        <i class="fa-solid fa-gem text-2xl text-neutral-700 mb-3 block"></i>
+                        <p class="text-[11px] font-medium tracking-wider uppercase">Aucune pépite trouvée...</p>
+                    </div>
+                `;
+                return;
+            }
+
+            articlesFiltres.forEach(art => {
+                const card = document.createElement('div');
+                card.className = "bg-cardGray rounded-2xl border border-neutral-900 overflow-hidden flex flex-col justify-between active:scale-[0.97] transition duration-200 cursor-pointer shadow-xl relative group";
+                card.onclick = () => ouvrirModal(art);
+
+                card.innerHTML = `
+                    <div class="relative aspect-square bg-black overflow-hidden">
+                        <img src="${art.image}" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src='${FALLBACK_IMG}';" alt="${art.titre}" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition duration-500">
+                        <span class="absolute top-2 left-2 bg-black/90 backdrop-blur-md text-white text-[9px] font-extrabold px-2 py-0.5 rounded-lg border border-neutral-800">
+                            +${art.benefice} €
+                        </span>
+                    </div>
+                    <div class="p-3.5 flex flex-col justify-between flex-1">
+                        <h4 class="text-[11px] font-medium text-neutral-200 line-clamp-2 leading-tight mb-3">${art.titre}</h4>
+                        <div class="flex items-center justify-between pt-2 border-t border-neutral-900">
+                            <span class="text-xs font-extrabold text-white">${art.prix} €</span>
+                            <span class="text-[9px] font-bold text-neutral-400">
+                                📈 ${art.revente} €
+                            </span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
         }
 
         function ouvrirModal(article) {
