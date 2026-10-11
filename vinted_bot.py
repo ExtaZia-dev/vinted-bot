@@ -1,3 +1,13 @@
+import socket
+
+# --- CORRECTIF RENDANT L'IPV4 OBLIGATOIRE SUR RENDER ---
+old_getaddrinfo = socket.getaddrinfo
+def new_getaddrinfo(*args, **kwargs):
+    responses = old_getaddrinfo(*args, **kwargs)
+    return [r for r in responses if r[0] == socket.AF_INET]
+socket.getaddrinfo = new_getaddrinfo
+# ------------------------------------------------------
+
 import asyncio
 import json
 import os
@@ -127,7 +137,7 @@ def get_annonces():
     return jsonify([])
 
 # ------------------------------------------------------------------
-# CATALOGUES & RECHERCHES MÉNAGERES
+# CATALOGUES & RECHERCHES
 # ------------------------------------------------------------------
 CATALOG_HOMME = "&catalog[]=5"
 CATALOG_CHAUSSURES = "&catalog[]=1231"
@@ -145,7 +155,6 @@ MOTS_CLES_EXCLUS = [
 ]
 
 RECHERCHES = [
-    # --- SNEAKERS HIGH-MARGIN ---
     {"mot_cle": "Nike Dunk Low", "type_article": "Sneakers", "prix_max": 50.0, "revente_base": 100.0, "cat": CATALOG_CHAUSSURES, "size": TAILLES_SNEAKERS},
     {"mot_cle": "Jordan 4", "type_article": "Sneakers", "prix_max": 80.0, "revente_base": 160.0, "cat": CATALOG_CHAUSSURES, "size": TAILLES_SNEAKERS},
     {"mot_cle": "Jordan 1 Low", "type_article": "Sneakers", "prix_max": 50.0, "revente_base": 105.0, "cat": CATALOG_CHAUSSURES, "size": TAILLES_SNEAKERS},
@@ -153,7 +162,6 @@ RECHERCHES = [
     {"mot_cle": "New Balance 1906R", "type_article": "Sneakers", "prix_max": 60.0, "revente_base": 120.0, "cat": CATALOG_CHAUSSURES, "size": TAILLES_SNEAKERS},
     {"mot_cle": "New Balance 2002R", "type_article": "Sneakers", "prix_max": 55.0, "revente_base": 115.0, "cat": CATALOG_CHAUSSURES, "size": TAILLES_SNEAKERS},
     {"mot_cle": "Adidas Campus 00s", "type_article": "Sneakers", "prix_max": 45.0, "revente_base": 90.0, "cat": CATALOG_CHAUSSURES, "size": TAILLES_SNEAKERS},
-    # --- VÊTEMENTS LUXE & STREETWEAR ---
     {"mot_cle": "Doudoune Ralph Lauren", "type_article": "Ralph Lauren", "prix_max": 50.0, "revente_base": 110.0, "cat": CATALOG_HOMME, "size": TAILLES_HABITS},
     {"mot_cle": "Sweat Ralph Lauren Bear", "type_article": "Ralph Lauren", "prix_max": 35.0, "revente_base": 75.0, "cat": CATALOG_HOMME, "size": TAILLES_HABITS},
     {"mot_cle": "Pull Ralph Lauren torsadé", "type_article": "Ralph Lauren", "prix_max": 25.0, "revente_base": 55.0, "cat": CATALOG_HOMME, "size": TAILLES_HABITS},
@@ -302,7 +310,6 @@ def lancer_bot_async():
 
     loop.run_until_complete(run_loop())
 
-# Démarrage automatique du thread du scraper
 bot_thread = threading.Thread(target=lancer_bot_async, daemon=True)
 bot_thread.start()
 
