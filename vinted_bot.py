@@ -73,7 +73,7 @@ def enregistrer_annonce(lien, prix, titre, image_url, type_article):
     return False
 
 # ------------------------------------------------------------------
-# API FLASK POUR LA MINI-APP TELEGRAM (FEED SCROLL INFINI)
+# API FLASK POUR LA MINI-APP TELEGRAM
 # ------------------------------------------------------------------
 @app.route("/")
 @app.route("/app")
@@ -112,12 +112,10 @@ def get_annonces():
                     r[4],
                 )
 
-                # Calcul financier précis
                 frais_vinted = 0.70 + (prix_achat * 0.05)
                 frais_port = 3.50
                 cout_total = round(prix_achat + frais_vinted + frais_port, 2)
 
-                # Coefficient de revente estimé
                 coef_revente = 2.2 if "Sneakers" in str(type_art) else 2.1
                 revente_est = round(prix_achat * coef_revente, 2)
                 if revente_est < prix_achat + 25.0:
@@ -146,71 +144,24 @@ def get_annonces():
     return jsonify([])
 
 # ------------------------------------------------------------------
-# CONFIGURATION DES RECHERCHES & FILTRES ANTI-DÉFAUTS
+# CONFIGURATION DES RECHERCHES & FILTRES
 # ------------------------------------------------------------------
 CATALOG_HOMME = "&catalog[]=5"
 CATALOG_CHAUSSURES = "&catalog[]=1231"
 TAILLES_HABITS = "&size_ids[]=206&size_ids[]=207&size_ids[]=208&size_ids[]=209"
-TAILLES_SNEAKERS = (
-    "&size_ids[]=778&size_ids[]=779&size_ids[]=780&size_ids[]=781"
-)
+TAILLES_SNEAKERS = "&size_ids[]=778&size_ids[]=779&size_ids[]=780&size_ids[]=781"
 ETAT_EXCELLENT = "&status_ids[]=6&status_ids[]=1&status_ids[]=2"
 
 MOTS_CLES_EXCLUS = [
-    # Défauts & Usure
-    "trou",
-    "trous",
-    "tache",
-    "taches",
-    "taché",
-    "abimé",
-    "abime",
-    "déchiré",
-    "dechire",
-    "usé",
-    "accroc",
-    "reparer",
-    "décoloré",
-    "semelle usée",
-    # Contrefaçons
-    "fake",
-    "faux",
-    "replica",
-    "replique",
-    "ua quality",
-    # Articles non désirés
-    "pyjama",
-    "short",
-    "maillot de bain",
-    "boxer",
-    "slip",
-    "chaussettes",
-    "casquette",
-    "bonnet",
-    "echarpe",
-    "gants",
-    # Pop-Culture & Fast Fashion
-    "star wars",
-    "starwars",
-    "marvel",
-    "dc comics",
-    "batman",
-    "spiderman",
-    "harry potter",
-    "naruto",
-    "dragon ball",
-    "manga",
-    "mario",
-    "pokemon",
-    "disney",
-    "kiabi",
-    "primark",
-    "zara",
-    "h&m",
+    "trou", "trous", "tache", "taches", "taché", "abimé", "abime", "déchiré", "dechire", 
+    "usé", "accroc", "reparer", "décoloré", "semelle usée", "fake", "faux", "replica", 
+    "replique", "ua quality", "pyjama", "short", "maillot de bain", "boxer", "slip", 
+    "chaussettes", "casquette", "bonnet", "echarpe", "gants", "star wars", "starwars", 
+    "marvel", "dc comics", "batman", "spiderman", "harry potter", "naruto", "dragon ball", 
+    "manga", "mario", "pokemon", "disney", "kiabi", "primark", "zara", "h&m"
 ]
 
 RECHERCHES = [
-    # --- SNEAKERS HIGH-MARGIN ---
     {
         "mot_cle": "Nike Dunk Low",
         "type_article": "Sneakers",
@@ -228,67 +179,10 @@ RECHERCHES = [
         "size": TAILLES_SNEAKERS,
     },
     {
-        "mot_cle": "Jordan 1 Low",
-        "type_article": "Sneakers",
-        "prix_max": 50.0,
-        "revente_base": 105.0,
-        "cat": CATALOG_CHAUSSURES,
-        "size": TAILLES_SNEAKERS,
-    },
-    {
-        "mot_cle": "Salomon XT-6",
-        "type_article": "Sneakers",
-        "prix_max": 65.0,
-        "revente_base": 130.0,
-        "cat": CATALOG_CHAUSSURES,
-        "size": TAILLES_SNEAKERS,
-    },
-    {
-        "mot_cle": "New Balance 1906R",
-        "type_article": "Sneakers",
-        "prix_max": 60.0,
-        "revente_base": 120.0,
-        "cat": CATALOG_CHAUSSURES,
-        "size": TAILLES_SNEAKERS,
-    },
-    {
-        "mot_cle": "New Balance 2002R",
-        "type_article": "Sneakers",
-        "prix_max": 55.0,
-        "revente_base": 115.0,
-        "cat": CATALOG_CHAUSSURES,
-        "size": TAILLES_SNEAKERS,
-    },
-    {
-        "mot_cle": "Adidas Campus 00s",
-        "type_article": "Sneakers",
-        "prix_max": 45.0,
-        "revente_base": 90.0,
-        "cat": CATALOG_CHAUSSURES,
-        "size": TAILLES_SNEAKERS,
-    },
-    # --- VÊTEMENTS LUXE & STREETWEAR ---
-    {
         "mot_cle": "Doudoune Ralph Lauren",
         "type_article": "Ralph Lauren",
         "prix_max": 50.0,
         "revente_base": 110.0,
-        "cat": CATALOG_HOMME,
-        "size": TAILLES_HABITS,
-    },
-    {
-        "mot_cle": "Sweat Ralph Lauren Bear",
-        "type_article": "Ralph Lauren",
-        "prix_max": 35.0,
-        "revente_base": 75.0,
-        "cat": CATALOG_HOMME,
-        "size": TAILLES_HABITS,
-    },
-    {
-        "mot_cle": "Pull Ralph Lauren torsadé",
-        "type_article": "Ralph Lauren",
-        "prix_max": 25.0,
-        "revente_base": 55.0,
         "cat": CATALOG_HOMME,
         "size": TAILLES_HABITS,
     },
@@ -300,75 +194,16 @@ RECHERCHES = [
         "cat": CATALOG_HOMME,
         "size": TAILLES_HABITS,
     },
-    {
-        "mot_cle": "Carhartt Active Jacket",
-        "type_article": "Carhartt",
-        "prix_max": 40.0,
-        "revente_base": 85.0,
-        "cat": CATALOG_HOMME,
-        "size": TAILLES_HABITS,
-    },
-    {
-        "mot_cle": "Arc'teryx jacket",
-        "type_article": "Techwear",
-        "prix_max": 60.0,
-        "revente_base": 130.0,
-        "cat": CATALOG_HOMME,
-        "size": TAILLES_HABITS,
-    },
-    {
-        "mot_cle": "North Face Nuptse 700",
-        "type_article": "Techwear",
-        "prix_max": 60.0,
-        "revente_base": 130.0,
-        "cat": CATALOG_HOMME,
-        "size": TAILLES_HABITS,
-    },
-    {
-        "mot_cle": "Sweat Stussy",
-        "type_article": "Streetwear",
-        "prix_max": 30.0,
-        "revente_base": 70.0,
-        "cat": CATALOG_HOMME,
-        "size": TAILLES_HABITS,
-    },
-    {
-        "mot_cle": "Corteiz hoodie",
-        "type_article": "Streetwear",
-        "prix_max": 45.0,
-        "revente_base": 95.0,
-        "cat": CATALOG_HOMME,
-        "size": TAILLES_HABITS,
-    },
-    {
-        "mot_cle": "Stone Island sweat",
-        "type_article": "Streetwear",
-        "prix_max": 65.0,
-        "revente_base": 140.0,
-        "cat": CATALOG_HOMME,
-        "size": TAILLES_HABITS,
-    },
-    {
-        "mot_cle": "CP Company jacket",
-        "type_article": "Streetwear",
-        "prix_max": 65.0,
-        "revente_base": 140.0,
-        "cat": CATALOG_HOMME,
-        "size": TAILLES_HABITS,
-    },
 ]
 
 def envoyer_notification_telegram(affaire):
     if TELEGRAM_BOT_TOKEN == "TON_TELEGRAM_BOT_TOKEN":
         return
-    render_url = os.environ.get(
-        "RENDER_EXTERNAL_URL", "https://vinted-bot.onrender.com"
-    )
+    render_url = os.environ.get("RENDER_EXTERNAL_URL", "https://vinted-bot.onrender.com")
     message = (
         f"🖤 <b>VAULT // NOUVELLE PÉPITE DETECTÉE</b>\n\n"
         f"▪️ <b>{affaire['titre']}</b>\n"
-        f"▫️ <b>Achat :</b> {affaire['prix']} € | <b>Revente :</b>"
-        f" {affaire['revente_finale']} €\n"
+        f"▫️ <b>Achat :</b> {affaire['prix']} € | <b>Revente :</b> {affaire['revente_finale']} €\n"
         f"▪️ <b>Bénéfice Net :</b> +{affaire['benefice']} €\n\n"
         f"<i>Consultez le Vault pour verrouiller l'achat.</i>"
     )
@@ -393,11 +228,7 @@ def envoyer_notification_telegram(affaire):
 async def scanner_vinted(browser):
     try:
         context = await browser.new_context(
-            user_agent=(
-                "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)"
-                " AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0"
-                " Mobile/15E148 Safari/604.1"
-            )
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         )
         page = await context.new_page()
         recherches_shuffled = RECHERCHES.copy()
@@ -421,7 +252,7 @@ async def scanner_vinted(browser):
                 await asyncio.sleep(random.uniform(0.5, 1.0))
                 items = await page.query_selector_all('[data-testid="grid-item"]')
 
-                for item in items[:15]:
+                for item in items[:10]:
                     title_elem = await item.query_selector('[data-testid*="title"], p')
                     price_elem = await item.query_selector('[data-testid*="price"], h3')
                     link_elem = await item.query_selector("a")
@@ -471,7 +302,7 @@ async def scanner_vinted(browser):
 
 async def boucle_principale():
     init_db()
-    print("🖤 Vault Ultimate Engine Active (Supabase Connected)!")
+    print("🖤 Vault Ultimate Engine Active (Low Memory Mode)!")
     while True:
         try:
             async with async_playwright() as p:
@@ -481,6 +312,10 @@ async def boucle_principale():
                         "--no-sandbox",
                         "--disable-setuid-sandbox",
                         "--disable-dev-shm-usage",
+                        "--disable-gpu",
+                        "--single-process",
+                        "--no-zygote",
+                        "--disable-extensions",
                     ],
                 )
                 await scanner_vinted(browser)
