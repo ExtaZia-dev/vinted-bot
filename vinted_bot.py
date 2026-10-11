@@ -6,38 +6,75 @@ import sqlite3
 import threading
 import urllib.parse
 from flask import Flask, jsonify, send_file
-from google import genai
-from google.genai import types
 from playwright.async_api import async_playwright
 import requests
 
 # ------------------------------------------------------------------
-# CONFIGURATION
+# CONFIGURATION VAULT ULTIMATE
 # ------------------------------------------------------------------
 TELEGRAM_BOT_TOKEN = "8829917220:AAE8WEpEr0lHgrM2UAw5Ls8IRmV50G6AZr4"
 TELEGRAM_CHAT_ID = "7467187588"
-GEMINI_API_KEY = "AQ.Ab8RN6JQwVlNb4mOpgYpngDPaw7CwFtzL8GFEPJfcZcL7Sbvqg"
 
-DELAI_BOUCLE_SECONDES = 600  # Scan toutes les 10 minutes pour plus de volume
-
-client_ai = (
-    genai.Client(api_key=GEMINI_API_KEY)
-    if GEMINI_API_KEY != "TA_CLE_API_GEMINI"
-    else None
-)
+DELAI_BOUCLE_SECONDES = 480  # Scan toutes les 8 minutes
 
 app = Flask(__name__)
 
 
 # ------------------------------------------------------------------
-# FLASK API & ROUTES MINI-APP
+# BASE DE DONNÉES SQLite (STOCKAGE HAUTE CAPACITÉ)
+# ------------------------------------------------------------------
+def init_db():
+  try:
+    conn = sqlite3.connect("vinted_ultime.db")
+    cursor = conn.cursor()
+    cursor.execute("""
+            CREATE TABLE IF NOT EXISTS annonces (
+                lien TEXT PRIMARY KEY,
+                prix REAL,
+                titre TEXT,
+                image_url TEXT,
+                type_article TEXT,
+                date_ajout TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+    conn.commit()
+    conn.close()
+  except Exception as e:
+    print(f"Erreur DB Init: {e}")
+
+
+def enregistrer_annonce(lien, prix, titre, image_url, type_article):
+  try:
+    conn = sqlite3.connect("vinted_ultime.db", timeout=10)
+    cursor = conn.cursor()
+    cursor.execute("SELECT prix FROM annonces WHERE lien = ?", (lien,))
+    row = cursor.fetchone()
+
+    if row is None:
+      cursor.execute(
+          "INSERT INTO annonces (lien, prix, titre, image_url, type_article)"
+          " VALUES (?, ?, ?, ?, ?)",
+          (lien, prix, titre, image_url, type_article),
+      )
+      conn.commit()
+      conn.close()
+      return True
+
+    conn.close()
+  except Exception as e:
+    print(f"Erreur écriture DB: {e}")
+  return False
+
+
+# ------------------------------------------------------------------
+# API FLASK POUR LA MINI-APP TELEGRAM (FEED SCROLL INFINI)
 # ------------------------------------------------------------------
 @app.route("/")
 @app.route("/app")
 def serve_app():
   if os.path.exists("app.html"):
     return send_file("app.html")
-  return "<h1>Vinted Private Vault - Online</h1>", 200
+  return "<h1>VAULT // Core System Online</h1>", 200
 
 
 @app.route("/healthz")
@@ -48,11 +85,11 @@ def health():
 @app.route("/api/annonces")
 def get_annonces():
   try:
-    conn = sqlite3.connect("vinted_ultime.db", timeout=5)
+    conn = sqlite3.connect("vinted_ultime.db", timeout=10)
     cursor = conn.cursor()
     cursor.execute(
         "SELECT lien, prix, titre, image_url, type_article FROM annonces ORDER"
-        " BY ROWID DESC LIMIT 40"
+        " BY ROWID DESC LIMIT 300"
     )
     rows = cursor.fetchall()
     conn.close()
@@ -67,28 +104,33 @@ def get_annonces():
             r[3],
             r[4],
         )
-        cout_tot = round(prix_achat + 0.70 + (prix_achat * 0.05) + 3.50, 2)
-        revente_est = round(prix_achat * 2.1, 2)
-        benef_net = round(revente_est - cout_tot, 2)
+
+        # Calcul financier précis
+        frais_vinted = 0.70 + (prix_achat * 0.05)
+        frais_port = 3.50
+        cout_total = round(prix_achat + frais_vinted + frais_port, 2)
+
+        # Coefficient de revente estimé
+        coef_revente = 2.2 if "Sneakers" in type_art else 2.1
+        revente_est = round(prix_achat * coef_revente, 2)
+        if revente_est < prix_achat + 25.0:
+          revente_est = round(prix_achat + 30.0, 2)
+
+        benef_net = round(revente_est - cout_total, 2)
 
         annonces.append({
             "id": idx + 1,
             "titre": titre_art or "Pièce Exclusive Vault",
             "type_article": type_art or "Sélection Luxe",
             "prix": prix_achat,
-            "cout_total": cout_tot,
+            "cout_total": cout_total,
             "revente": revente_est,
             "benefice": benef_net,
             "lien": lien_art,
             "image": (
                 img_art
-                or "https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=600&q=80"
+                or "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=600&q=80"
             ),
-            "statut": "DISPONIBLE",
-            "ia": {
-                "note": 9.4,
-                "commentaire": "Validé par le protocole Vault Monochromatique.",
-            },
         })
       return jsonify(annonces)
   except Exception as e:
@@ -103,60 +145,18 @@ def demarrer_flask():
 
 
 # ------------------------------------------------------------------
-# BASE DE DONNÉES LOCALE
-# ------------------------------------------------------------------
-def init_db():
-  try:
-    conn = sqlite3.connect("vinted_ultime.db")
-    cursor = conn.cursor()
-    cursor.execute("""
-            CREATE TABLE IF NOT EXISTS annonces (
-                lien TEXT PRIMARY KEY,
-                prix REAL,
-                titre TEXT,
-                image_url TEXT,
-                type_article TEXT
-            )
-        """)
-    conn.commit()
-    conn.close()
-  except Exception as e:
-    print(f"Erreur init DB: {e}")
-
-
-def enregistrer_annonce(lien, prix, titre, image_url, type_article):
-  try:
-    conn = sqlite3.connect("vinted_ultime.db", timeout=5)
-    cursor = conn.cursor()
-    cursor.execute("SELECT prix FROM annonces WHERE lien = ?", (lien,))
-    row = cursor.fetchone()
-
-    if row is None:
-      cursor.execute(
-          "INSERT INTO annonces VALUES (?, ?, ?, ?, ?)",
-          (lien, prix, titre, image_url, type_article),
-      )
-      conn.commit()
-      conn.close()
-      return True, "NOUVELLE"
-
-    conn.close()
-  except Exception as e:
-    print(f"Erreur écriture DB: {e}")
-  return False, "DEJA_VUE"
-
-
-# ------------------------------------------------------------------
-# FILTRES ÉTENDUS & LISTE NOIRE STRICTE (ANTI STAR-WARS, GEEK, DÉFAUTS)
+# CONFIGURATION DES RECHERCHES & FILTRES ANTI-DÉFAUTS
 # ------------------------------------------------------------------
 CATALOG_HOMME = "&catalog[]=5"
-TAILLES_POPULAIRES = (
-    "&size_ids[]=206&size_ids[]=207&size_ids[]=208&size_ids[]=209"
+CATALOG_CHAUSSURES = "&catalog[]=1231"
+TAILLES_HABITS = "&size_ids[]=206&size_ids[]=207&size_ids[]=208&size_ids[]=209"
+TAILLES_SNEAKERS = (
+    "&size_ids[]=778&size_ids[]=779&size_ids[]=780&size_ids[]=781"
 )
 ETAT_EXCELLENT = "&status_ids[]=6&status_ids[]=1&status_ids[]=2"
 
 MOTS_CLES_EXCLUS = [
-    # Défauts & Contrefaçons
+    # Défauts & Usure
     "trou",
     "trous",
     "tache",
@@ -170,11 +170,14 @@ MOTS_CLES_EXCLUS = [
     "accroc",
     "reparer",
     "décoloré",
+    "semelle usée",
+    # Contrefaçons
     "fake",
     "faux",
     "replica",
     "replique",
-    # Accessoires mineurs / Sous-vêtements
+    "ua quality",
+    # Articles non désirés
     "pyjama",
     "short",
     "maillot de bain",
@@ -185,10 +188,7 @@ MOTS_CLES_EXCLUS = [
     "bonnet",
     "echarpe",
     "gants",
-    "magnet",
-    "sticker",
-    "autocollant",
-    # Pop-Culture, Geek, Enfant (Star Wars, Marvel, etc.)
+    # Pop-Culture & Fast Fashion
     "star wars",
     "starwars",
     "marvel",
@@ -200,124 +200,177 @@ MOTS_CLES_EXCLUS = [
     "dragon ball",
     "manga",
     "mario",
-    "sonic",
     "pokemon",
     "disney",
     "kiabi",
     "primark",
-    "geant",
-    "bebe",
-    "enfant",
-    "ans",
     "zara",
     "h&m",
 ]
 
-# RECHERCHES TRÈS LARGES POUR REMPLIR L'APPLI DE PÉPITES
 RECHERCHES = [
-    # RALPH LAUREN
+    # --- SNEAKERS HIGH-MARGIN ---
+    {
+        "mot_cle": "Nike Dunk Low",
+        "type_article": "Sneakers",
+        "prix_max": 50.0,
+        "revente_base": 100.0,
+        "cat": CATALOG_CHAUSSURES,
+        "size": TAILLES_SNEAKERS,
+    },
+    {
+        "mot_cle": "Jordan 4",
+        "type_article": "Sneakers",
+        "prix_max": 80.0,
+        "revente_base": 160.0,
+        "cat": CATALOG_CHAUSSURES,
+        "size": TAILLES_SNEAKERS,
+    },
+    {
+        "mot_cle": "Jordan 1 Low",
+        "type_article": "Sneakers",
+        "prix_max": 50.0,
+        "revente_base": 105.0,
+        "cat": CATALOG_CHAUSSURES,
+        "size": TAILLES_SNEAKERS,
+    },
+    {
+        "mot_cle": "Salomon XT-6",
+        "type_article": "Sneakers",
+        "prix_max": 65.0,
+        "revente_base": 130.0,
+        "cat": CATALOG_CHAUSSURES,
+        "size": TAILLES_SNEAKERS,
+    },
+    {
+        "mot_cle": "New Balance 1906R",
+        "type_article": "Sneakers",
+        "prix_max": 60.0,
+        "revente_base": 120.0,
+        "cat": CATALOG_CHAUSSURES,
+        "size": TAILLES_SNEAKERS,
+    },
+    {
+        "mot_cle": "New Balance 2002R",
+        "type_article": "Sneakers",
+        "prix_max": 55.0,
+        "revente_base": 115.0,
+        "cat": CATALOG_CHAUSSURES,
+        "size": TAILLES_SNEAKERS,
+    },
+    {
+        "mot_cle": "Adidas Campus 00s",
+        "type_article": "Sneakers",
+        "prix_max": 45.0,
+        "revente_base": 90.0,
+        "cat": CATALOG_CHAUSSURES,
+        "size": TAILLES_SNEAKERS,
+    },
+    # --- VÊTEMENTS LUXE & STREETWEAR ---
     {
         "mot_cle": "Doudoune Ralph Lauren",
         "type_article": "Ralph Lauren",
-        "prix_max": 45.0,
-        "revente_base": 85.0,
+        "prix_max": 50.0,
+        "revente_base": 110.0,
+        "cat": CATALOG_HOMME,
+        "size": TAILLES_HABITS,
     },
     {
         "mot_cle": "Sweat Ralph Lauren Bear",
         "type_article": "Ralph Lauren",
-        "prix_max": 30.0,
-        "revente_base": 65.0,
-    },
-    {
-        "mot_cle": "Pull Ralph Lauren",
-        "type_article": "Ralph Lauren",
-        "prix_max": 25.0,
-        "revente_base": 50.0,
-    },
-    {
-        "mot_cle": "Chemise Ralph Lauren oxford",
-        "type_article": "Ralph Lauren",
-        "prix_max": 20.0,
-        "revente_base": 45.0,
-    },
-    # WORKWEAR & TECHWEAR
-    {
-        "mot_cle": "Carhartt Detroit",
-        "type_article": "Carhartt",
-        "prix_max": 45.0,
-        "revente_base": 90.0,
-    },
-    {
-        "mot_cle": "Carhartt jacket",
-        "type_article": "Carhartt",
         "prix_max": 35.0,
         "revente_base": 75.0,
+        "cat": CATALOG_HOMME,
+        "size": TAILLES_HABITS,
     },
     {
-        "mot_cle": "Arc'teryx",
-        "type_article": "Techwear",
-        "prix_max": 50.0,
-        "revente_base": 100.0,
-    },
-    {
-        "mot_cle": "North Face Nuptse",
-        "type_article": "North Face",
-        "prix_max": 55.0,
-        "revente_base": 110.0,
-    },
-    {
-        "mot_cle": "Patagonia vest",
-        "type_article": "Patagonia",
-        "prix_max": 30.0,
-        "revente_base": 65.0,
-    },
-    # STREETWEAR & VINTAGE
-    {
-        "mot_cle": "Nike vintage",
-        "type_article": "Nike Vintage",
+        "mot_cle": "Pull Ralph Lauren torsadé",
+        "type_article": "Ralph Lauren",
         "prix_max": 25.0,
-        "revente_base": 50.0,
+        "revente_base": 55.0,
+        "cat": CATALOG_HOMME,
+        "size": TAILLES_HABITS,
+    },
+    {
+        "mot_cle": "Carhartt Detroit Jacket",
+        "type_article": "Carhartt",
+        "prix_max": 50.0,
+        "revente_base": 110.0,
+        "cat": CATALOG_HOMME,
+        "size": TAILLES_HABITS,
+    },
+    {
+        "mot_cle": "Carhartt Active Jacket",
+        "type_article": "Carhartt",
+        "prix_max": 40.0,
+        "revente_base": 85.0,
+        "cat": CATALOG_HOMME,
+        "size": TAILLES_HABITS,
+    },
+    {
+        "mot_cle": "Arc'teryx jacket",
+        "type_article": "Techwear",
+        "prix_max": 60.0,
+        "revente_base": 130.0,
+        "cat": CATALOG_HOMME,
+        "size": TAILLES_HABITS,
+    },
+    {
+        "mot_cle": "North Face Nuptse 700",
+        "type_article": "Techwear",
+        "prix_max": 60.0,
+        "revente_base": 130.0,
+        "cat": CATALOG_HOMME,
+        "size": TAILLES_HABITS,
     },
     {
         "mot_cle": "Sweat Stussy",
-        "type_article": "Stussy",
+        "type_article": "Streetwear",
         "prix_max": 30.0,
-        "revente_base": 60.0,
+        "revente_base": 70.0,
+        "cat": CATALOG_HOMME,
+        "size": TAILLES_HABITS,
     },
     {
-        "mot_cle": "Sweat Carhartt",
-        "type_article": "Carhartt",
-        "prix_max": 25.0,
-        "revente_base": 55.0,
+        "mot_cle": "Corteiz hoodie",
+        "type_article": "Streetwear",
+        "prix_max": 45.0,
+        "revente_base": 95.0,
+        "cat": CATALOG_HOMME,
+        "size": TAILLES_HABITS,
     },
     {
-        "mot_cle": "Maillot foot vintage",
-        "type_article": "Maillot Vintage",
-        "prix_max": 25.0,
-        "revente_base": 55.0,
+        "mot_cle": "Stone Island sweat",
+        "type_article": "Streetwear",
+        "prix_max": 65.0,
+        "revente_base": 140.0,
+        "cat": CATALOG_HOMME,
+        "size": TAILLES_HABITS,
     },
     {
-        "mot_cle": "Lacoste vintage",
-        "type_article": "Lacoste",
-        "prix_max": 25.0,
-        "revente_base": 50.0,
+        "mot_cle": "CP Company jacket",
+        "type_article": "Streetwear",
+        "prix_max": 65.0,
+        "revente_base": 140.0,
+        "cat": CATALOG_HOMME,
+        "size": TAILLES_HABITS,
     },
 ]
 
 
-def envoyer_notification_discrete(affaire):
+def envoyer_notification_telegram(affaire):
   if TELEGRAM_BOT_TOKEN == "TON_TELEGRAM_BOT_TOKEN":
     return
   render_url = os.environ.get(
       "RENDER_EXTERNAL_URL", "https://vinted-bot.onrender.com"
   )
   message = (
-      f"🖤 <b>VAULT // NOUVELLE PÉPITE</b>\n\n"
+      f"🖤 <b>VAULT // NOUVELLE PÉPITE DETECTÉE</b>\n\n"
       f"▪️ <b>{affaire['titre']}</b>\n"
       f"▫️ <b>Achat :</b> {affaire['prix']} € | <b>Revente :</b>"
       f" {affaire['revente_finale']} €\n"
       f"▪️ <b>Bénéfice Net :</b> +{affaire['benefice']} €\n\n"
-      f"<i>Consultez le Vault monochrome pour acquérir cette pièce.</i>"
+      f"<i>Consultez le Vault pour verrouiller l'achat.</i>"
   )
   keyboard = {
       "inline_keyboard": [[{
@@ -351,24 +404,25 @@ async def scanner_vinted(browser):
     recherches_shuffled = RECHERCHES.copy()
     random.shuffle(recherches_shuffled)
 
-    # Scanne plusieurs recherches par cycle pour alimenter massivement l'app
-    for recherche in recherches_shuffled[:7]:
+    for recherche in recherches_shuffled:
       mot_cle = recherche["mot_cle"]
       type_article = recherche["type_article"]
       prix_max = recherche["prix_max"]
       revente_base = recherche["revente_base"]
+      cat = recherche.get("cat", CATALOG_HOMME)
+      size = recherche.get("size", TAILLES_HABITS)
 
       url = (
           f"https://www.vinted.fr/vetements?search_text={urllib.parse.quote(mot_cle)}"
-          f"&price_to={prix_max}{CATALOG_HOMME}{TAILLES_POPULAIRES}{ETAT_EXCELLENT}&order=newest_first"
+          f"&price_to={prix_max}{cat}{size}{ETAT_EXCELLENT}&order=newest_first"
       )
 
       try:
         await page.goto(url, wait_until="domcontentloaded", timeout=12000)
-        await asyncio.sleep(random.uniform(0.8, 1.5))
+        await asyncio.sleep(random.uniform(0.5, 1.0))
         items = await page.query_selector_all('[data-testid="grid-item"]')
 
-        for item in items[:3]:
+        for item in items[:15]:
           title_elem = await item.query_selector('[data-testid*="title"], p')
           price_elem = await item.query_selector('[data-testid*="price"], h3')
           link_elem = await item.query_selector("a")
@@ -392,14 +446,14 @@ async def scanner_vinted(browser):
             prix = 0.0
 
           if 0 < prix <= prix_max:
-            est_nouveau, statut = enregistrer_annonce(
+            est_nouveau = enregistrer_annonce(
                 lien, prix, titre, image_url, type_article
             )
             if est_nouveau:
-              cout_total = prix + 0.70 + (prix * 0.05) + 3.50
-              benefice_net = revente_base - cout_total
+              frais = 0.70 + (prix * 0.05) + 3.50
+              benefice_net = revente_base - (prix + frais)
 
-              if benefice_net >= 10.0:  # Seuil de profit optimisé
+              if benefice_net >= 12.0:
                 affaire = {
                     "titre": titre.strip(),
                     "type_article": type_article,
@@ -408,7 +462,7 @@ async def scanner_vinted(browser):
                     "benefice": round(benefice_net, 2),
                     "lien": lien,
                 }
-                envoyer_notification_discrete(affaire)
+                envoyer_notification_telegram(affaire)
       except Exception as e:
         print(f"Erreur scan {mot_cle}: {e}")
 
@@ -419,7 +473,7 @@ async def scanner_vinted(browser):
 
 async def boucle_principale():
   init_db()
-  print("🖤 Vault Monochromatique démarré !")
+  print("🖤 Vault Ultimate Engine Active!")
   while True:
     try:
       async with async_playwright() as p:
