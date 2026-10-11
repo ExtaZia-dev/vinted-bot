@@ -19,7 +19,7 @@ DELAI_BOUCLE_SECONDES = 480  # Scan toutes les 8 minutes
 
 app = Flask(__name__)
 
-# Récupération de l'URL Supabase depuis l'environnement Render
+# Récupération de l'URL Supabase depuis la variable d'environnement Render
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
 # ------------------------------------------------------------------
@@ -73,7 +73,7 @@ def enregistrer_annonce(lien, prix, titre, image_url, type_article):
     return False
 
 # ------------------------------------------------------------------
-# API FLASK POUR LA MINI-APP TELEGRAM
+# API FLASK POUR LA MINI-APP TELEGRAM & SERVICES
 # ------------------------------------------------------------------
 @app.route("/")
 @app.route("/app")
@@ -112,6 +112,7 @@ def get_annonces():
                     r[4],
                 )
 
+                # Calcul financier
                 frais_vinted = 0.70 + (prix_achat * 0.05)
                 frais_port = 3.50
                 cout_total = round(prix_achat + frais_vinted + frais_port, 2)
@@ -144,7 +145,7 @@ def get_annonces():
     return jsonify([])
 
 # ------------------------------------------------------------------
-# CONFIGURATION DES RECHERCHES & FILTRES
+# CONFIGURATION DES RECHERCHES & FILTRES ANTI-DÉFAUTS
 # ------------------------------------------------------------------
 CATALOG_HOMME = "&catalog[]=5"
 CATALOG_CHAUSSURES = "&catalog[]=1231"
@@ -153,15 +154,22 @@ TAILLES_SNEAKERS = "&size_ids[]=778&size_ids[]=779&size_ids[]=780&size_ids[]=781
 ETAT_EXCELLENT = "&status_ids[]=6&status_ids[]=1&status_ids[]=2"
 
 MOTS_CLES_EXCLUS = [
+    # Défauts & Usure
     "trou", "trous", "tache", "taches", "taché", "abimé", "abime", "déchiré", "dechire", 
-    "usé", "accroc", "reparer", "décoloré", "semelle usée", "fake", "faux", "replica", 
-    "replique", "ua quality", "pyjama", "short", "maillot de bain", "boxer", "slip", 
-    "chaussettes", "casquette", "bonnet", "echarpe", "gants", "star wars", "starwars", 
-    "marvel", "dc comics", "batman", "spiderman", "harry potter", "naruto", "dragon ball", 
-    "manga", "mario", "pokemon", "disney", "kiabi", "primark", "zara", "h&m"
+    "usé", "accroc", "reparer", "décoloré", "semelle usée",
+    # Contrefaçons
+    "fake", "faux", "replica", "replique", "ua quality",
+    # Articles non désirés
+    "pyjama", "short", "maillot de bain", "boxer", "slip", "chaussettes", "casquette", 
+    "bonnet", "echarpe", "gants",
+    # Pop-Culture & Fast Fashion
+    "star wars", "starwars", "marvel", "dc comics", "batman", "spiderman", "harry potter", 
+    "naruto", "dragon ball", "manga", "mario", "pokemon", "disney", "kiabi", "primark", 
+    "zara", "h&m"
 ]
 
 RECHERCHES = [
+    # --- SNEAKERS HIGH-MARGIN ---
     {
         "mot_cle": "Nike Dunk Low",
         "type_article": "Sneakers",
@@ -179,10 +187,67 @@ RECHERCHES = [
         "size": TAILLES_SNEAKERS,
     },
     {
+        "mot_cle": "Jordan 1 Low",
+        "type_article": "Sneakers",
+        "prix_max": 50.0,
+        "revente_base": 105.0,
+        "cat": CATALOG_CHAUSSURES,
+        "size": TAILLES_SNEAKERS,
+    },
+    {
+        "mot_cle": "Salomon XT-6",
+        "type_article": "Sneakers",
+        "prix_max": 65.0,
+        "revente_base": 130.0,
+        "cat": CATALOG_CHAUSSURES,
+        "size": TAILLES_SNEAKERS,
+    },
+    {
+        "mot_cle": "New Balance 1906R",
+        "type_article": "Sneakers",
+        "prix_max": 60.0,
+        "revente_base": 120.0,
+        "cat": CATALOG_CHAUSSURES,
+        "size": TAILLES_SNEAKERS,
+    },
+    {
+        "mot_cle": "New Balance 2002R",
+        "type_article": "Sneakers",
+        "prix_max": 55.0,
+        "revente_base": 115.0,
+        "cat": CATALOG_CHAUSSURES,
+        "size": TAILLES_SNEAKERS,
+    },
+    {
+        "mot_cle": "Adidas Campus 00s",
+        "type_article": "Sneakers",
+        "prix_max": 45.0,
+        "revente_base": 90.0,
+        "cat": CATALOG_CHAUSSURES,
+        "size": TAILLES_SNEAKERS,
+    },
+    # --- VÊTEMENTS LUXE & STREETWEAR ---
+    {
         "mot_cle": "Doudoune Ralph Lauren",
         "type_article": "Ralph Lauren",
         "prix_max": 50.0,
         "revente_base": 110.0,
+        "cat": CATALOG_HOMME,
+        "size": TAILLES_HABITS,
+    },
+    {
+        "mot_cle": "Sweat Ralph Lauren Bear",
+        "type_article": "Ralph Lauren",
+        "prix_max": 35.0,
+        "revente_base": 75.0,
+        "cat": CATALOG_HOMME,
+        "size": TAILLES_HABITS,
+    },
+    {
+        "mot_cle": "Pull Ralph Lauren torsadé",
+        "type_article": "Ralph Lauren",
+        "prix_max": 25.0,
+        "revente_base": 55.0,
         "cat": CATALOG_HOMME,
         "size": TAILLES_HABITS,
     },
@@ -194,12 +259,68 @@ RECHERCHES = [
         "cat": CATALOG_HOMME,
         "size": TAILLES_HABITS,
     },
+    {
+        "mot_cle": "Carhartt Active Jacket",
+        "type_article": "Carhartt",
+        "prix_max": 40.0,
+        "revente_base": 85.0,
+        "cat": CATALOG_HOMME,
+        "size": TAILLES_HABITS,
+    },
+    {
+        "mot_cle": "Arc'teryx jacket",
+        "type_article": "Techwear",
+        "prix_max": 60.0,
+        "revente_base": 130.0,
+        "cat": CATALOG_HOMME,
+        "size": TAILLES_HABITS,
+    },
+    {
+        "mot_cle": "North Face Nuptse 700",
+        "type_article": "Techwear",
+        "prix_max": 60.0,
+        "revente_base": 130.0,
+        "cat": CATALOG_HOMME,
+        "size": TAILLES_HABITS,
+    },
+    {
+        "mot_cle": "Sweat Stussy",
+        "type_article": "Streetwear",
+        "prix_max": 30.0,
+        "revente_base": 70.0,
+        "cat": CATALOG_HOMME,
+        "size": TAILLES_HABITS,
+    },
+    {
+        "mot_cle": "Corteiz hoodie",
+        "type_article": "Streetwear",
+        "prix_max": 45.0,
+        "revente_base": 95.0,
+        "cat": CATALOG_HOMME,
+        "size": TAILLES_HABITS,
+    },
+    {
+        "mot_cle": "Stone Island sweat",
+        "type_article": "Streetwear",
+        "prix_max": 65.0,
+        "revente_base": 140.0,
+        "cat": CATALOG_HOMME,
+        "size": TAILLES_HABITS,
+    },
+    {
+        "mot_cle": "CP Company jacket",
+        "type_article": "Streetwear",
+        "prix_max": 65.0,
+        "revente_base": 140.0,
+        "cat": CATALOG_HOMME,
+        "size": TAILLES_HABITS,
+    },
 ]
 
 def envoyer_notification_telegram(affaire):
     if TELEGRAM_BOT_TOKEN == "TON_TELEGRAM_BOT_TOKEN":
         return
-    render_url = os.environ.get("RENDER_EXTERNAL_URL", "https://vinted-bot.onrender.com")
+    render_url = os.environ.get("RENDER_EXTERNAL_URL", "https://vinted-bot-dptd.onrender.com")
     message = (
         f"🖤 <b>VAULT // NOUVELLE PÉPITE DETECTÉE</b>\n\n"
         f"▪️ <b>{affaire['titre']}</b>\n"
