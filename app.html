@@ -2,8 +2,8 @@
 <html lang="fr" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Vinted Copilot Private Club</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>VAULT // Monochromatique</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Telegram WebApp Script -->
@@ -25,8 +25,10 @@
                         serif: ['"Playfair Display"', 'serif'],
                     },
                     colors: {
-                        onyx: '#0B0F17',
-                        cardDark: '#131924',
+                        pureBlack: '#000000',
+                        vaultGray: '#0A0A0A',
+                        cardGray: '#121212',
+                        borderGray: '#222222',
                     }
                 }
             }
@@ -34,136 +36,110 @@
     </script>
     <style>
         body {
-            background-color: #080B11;
+            background-color: #000000;
             -webkit-tap-highlight-color: transparent;
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
-        .gold-gradient-text {
-            background: linear-gradient(135deg, #FFF 30%, #FACC15 100%);
+        .mono-gradient {
+            background: linear-gradient(135deg, #FFFFFF 20%, #737373 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        .glass-panel {
-            background: rgba(19, 25, 36, 0.75);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+        .glass-vault {
+            background: rgba(12, 12, 12, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
     </style>
 </head>
 <body class="text-slate-100 min-h-screen pb-24 select-none">
 
-    <!-- TOP HEADER VIP -->
-    <header class="sticky top-0 z-40 glass-panel px-5 py-4 flex items-center justify-between border-b border-white/5">
+    <!-- HEADER MONOCHROME LUXE -->
+    <header class="sticky top-0 z-40 glass-vault px-5 py-4 flex items-center justify-between pt-11">
         <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400 via-amber-600 to-amber-800 p-[1px] shadow-lg shadow-amber-500/10">
-                <div class="w-full h-full bg-onyx rounded-[15px] flex items-center justify-center">
-                    <i class="fa-solid fa-crown text-amber-400 text-sm"></i>
+            <div class="w-9 h-9 rounded-full bg-white p-[1px] shadow-2xl">
+                <div class="w-full h-full bg-black rounded-full flex items-center justify-center">
+                    <i class="fa-solid fa-gem text-white text-xs"></i>
                 </div>
             </div>
             <div>
-                <h1 class="font-serif italic font-bold text-lg leading-none tracking-tight gold-gradient-text">COPILOT</h1>
-                <span class="text-[9px] font-bold tracking-[0.2em] text-slate-400 uppercase">Private Vault</span>
+                <h1 class="font-serif italic font-bold text-base leading-none tracking-widest mono-gradient">VAULT</h1>
+                <span class="text-[8px] font-bold tracking-[0.3em] text-neutral-500 uppercase">Black & White Edition</span>
             </div>
         </div>
         
         <div class="flex items-center space-x-2">
-            <div class="bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-full flex items-center space-x-2">
-                <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span>
-                <span class="text-[10px] font-semibold tracking-wider text-amber-300 uppercase" id="stat-count">0 Pépites</span>
+            <div class="bg-neutral-900 border border-neutral-800 px-3 py-1 rounded-full flex items-center space-x-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+                <span class="text-[10px] font-bold tracking-wider text-neutral-300 uppercase" id="stat-count">0 Pépites</span>
             </div>
         </div>
     </header>
 
     <!-- MAIN CONTENT -->
     <main class="p-4 max-w-md mx-auto">
-        <!-- BANNIÈRE EXCLUSIVE -->
-        <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-cardDark to-slate-900 border border-amber-500/20 p-5 mb-6 shadow-2xl">
-            <div class="absolute -right-8 -bottom-8 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl"></div>
-            <div class="relative z-10">
-                <span class="text-[9px] font-extrabold uppercase tracking-[0.25em] text-amber-400 bg-amber-400/10 px-2.5 py-1 rounded-md border border-amber-400/20">
-                    High Liquidity Feed
-                </span>
-                <h2 class="text-base font-bold text-white mt-3 leading-snug">Sélection Curatée Luxe & Vintage</h2>
-                <p class="text-xs text-slate-400 mt-1 font-light">Marge nette garantie ≥ 12 € • Scan automatique 15 min</p>
-            </div>
-        </div>
-
-        <!-- EN-TÊTE FILTRES / ACTIONS -->
         <div class="flex items-center justify-between mb-4 px-1">
-            <span class="text-[11px] font-bold uppercase tracking-widest text-slate-400">Pépites du Moment</span>
-            <button onclick="chargerAnnonces()" class="text-xs text-amber-400 hover:text-amber-300 flex items-center space-x-1.5 active:scale-95 transition">
+            <span class="text-[10px] font-extrabold uppercase tracking-[0.25em] text-neutral-500">Sélection Exclusive Live</span>
+            <button onclick="chargerAnnonces()" class="text-xs text-neutral-300 hover:text-white flex items-center space-x-1.5 active:scale-95 transition">
                 <i class="fa-solid fa-arrows-rotate text-[10px]"></i>
-                <span class="font-medium">Rafraîchir</span>
+                <span class="font-medium tracking-wide">Actualiser</span>
             </button>
         </div>
 
         <!-- SKELETON LOADING -->
-        <div id="loading-state" class="grid grid-cols-2 gap-4">
-            <div class="bg-cardDark rounded-3xl h-72 animate-pulse border border-white/5"></div>
-            <div class="bg-cardDark rounded-3xl h-72 animate-pulse border border-white/5"></div>
+        <div id="loading-state" class="grid grid-cols-2 gap-3">
+            <div class="bg-cardGray rounded-2xl h-64 animate-pulse border border-neutral-900"></div>
+            <div class="bg-cardGray rounded-2xl h-64 animate-pulse border border-neutral-900"></div>
         </div>
 
         <!-- GRILLE D'ARTICLES -->
-        <div id="annonces-container" class="grid grid-cols-2 gap-4 hidden">
-            <!-- Injecté par JavaScript -->
+        <div id="annonces-container" class="grid grid-cols-2 gap-3 hidden">
+            <!-- Injecté par JS -->
         </div>
     </main>
 
-    <!-- MODAL POPUP - FICHE SHOWROOM VIP -->
-    <div id="product-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex-col justify-end transition-all duration-300">
-        <div id="modal-content-box" class="bg-onyx border-t border-amber-500/30 rounded-t-[32px] max-h-[88vh] overflow-y-auto p-6 transform translate-y-full transition-transform duration-300 ease-out shadow-2xl">
+    <!-- MODAL POPUP SHOWROOM NOIR & BLANC -->
+    <div id="product-modal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-lg hidden flex-col justify-end transition-all duration-300">
+        <div id="modal-content-box" class="bg-vaultGray border-t border-neutral-800 rounded-t-[32px] max-h-[88vh] overflow-y-auto p-6 transform translate-y-full transition-transform duration-300 ease-out shadow-2xl pb-12">
             
-            <div class="w-10 h-1 bg-slate-800 rounded-full mx-auto mb-5"></div>
+            <div class="w-10 h-1 bg-neutral-800 rounded-full mx-auto mb-5"></div>
             
-            <!-- CONTENEUR IMAGE DÉTAILLÉE -->
-            <div class="relative rounded-2xl overflow-hidden mb-5 bg-cardDark aspect-square border border-white/10 shadow-2xl">
-                <img id="modal-img" src="" referrerpolicy="no-referrer" alt="Produit Luxe" class="w-full h-full object-cover">
-                <div id="modal-badge-container" class="absolute top-3 left-3"></div>
+            <div class="relative rounded-2xl overflow-hidden mb-5 bg-black aspect-square border border-neutral-800 shadow-2xl">
+                <img id="modal-img" src="" referrerpolicy="no-referrer" alt="Produit Vault" class="w-full h-full object-cover">
             </div>
 
             <div class="flex items-center justify-between mb-2">
-                <span id="modal-cat" class="text-[10px] font-extrabold text-amber-400 uppercase tracking-[0.2em]"></span>
-                <div class="flex items-center space-x-1 text-amber-400 text-xs font-bold bg-amber-400/10 px-2.5 py-1 rounded-lg border border-amber-400/20">
-                    <i class="fa-solid fa-gem text-[10px]"></i>
-                    <span id="modal-ai-score">9.5/10</span>
+                <span id="modal-cat" class="text-[10px] font-black text-neutral-400 uppercase tracking-[0.25em]"></span>
+                <div class="flex items-center space-x-1 text-white text-xs font-bold bg-neutral-900 px-2.5 py-1 rounded-lg border border-neutral-800">
+                    <i class="fa-solid fa-star text-[10px] text-white"></i>
+                    <span id="modal-ai-score">9.4/10</span>
                 </div>
             </div>
 
-            <h3 id="modal-title" class="text-base font-bold text-white mb-4 leading-snug"></h3>
+            <h3 id="modal-title" class="text-sm font-bold text-white mb-5 leading-snug"></h3>
 
-            <!-- CARTE FINANCIÈRE VIP -->
-            <div class="grid grid-cols-3 gap-2 bg-cardDark/80 p-4 rounded-2xl border border-white/5 mb-5 text-center">
+            <div class="grid grid-cols-3 gap-2 bg-cardGray p-3.5 rounded-2xl border border-neutral-900 mb-6 text-center">
                 <div>
-                    <span class="block text-[9px] text-slate-400 font-medium uppercase tracking-wider">Achat Vinted</span>
-                    <span id="modal-prix" class="text-sm font-bold text-white mt-1 block"></span>
+                    <span class="block text-[8px] text-neutral-500 font-bold uppercase tracking-wider">Achat</span>
+                    <span id="modal-prix" class="text-xs font-bold text-white mt-1 block"></span>
                 </div>
-                <div class="border-x border-white/5">
-                    <span class="block text-[9px] text-slate-400 font-medium uppercase tracking-wider">Cible Revente</span>
-                    <span id="modal-revente" class="text-sm font-bold text-amber-400 mt-1 block"></span>
+                <div class="border-x border-neutral-800">
+                    <span class="block text-[8px] text-neutral-500 font-bold uppercase tracking-wider">Revente</span>
+                    <span id="modal-revente" class="text-xs font-bold text-neutral-300 mt-1 block"></span>
                 </div>
                 <div>
-                    <span class="block text-[9px] text-slate-400 font-medium uppercase tracking-wider">Profit Net</span>
-                    <span id="modal-benefice" class="text-sm font-extrabold text-emerald-400 mt-1 block"></span>
+                    <span class="block text-[8px] text-neutral-500 font-bold uppercase tracking-wider">Bénéfice</span>
+                    <span id="modal-benefice" class="text-xs font-black text-white mt-1 block"></span>
                 </div>
             </div>
 
-            <!-- AUDIT IA GEMINI -->
-            <div class="bg-cardDark/40 p-4 rounded-2xl border border-white/5 mb-6">
-                <div class="flex items-center space-x-2 text-xs font-semibold text-slate-200 mb-1.5">
-                    <i class="fa-solid fa-sparkles text-amber-400"></i>
-                    <span class="uppercase tracking-wider text-[10px] text-amber-400 font-bold">Audit Copilot IA :</span>
-                </div>
-                <p id="modal-ai-comment" class="text-xs text-slate-400 font-light leading-relaxed"></p>
-            </div>
-
-            <!-- BOUTONS D'ACTION VIP -->
             <div class="grid grid-cols-2 gap-3">
-                <button id="modal-btn-buy" onclick="ouvrirLienVinted()" class="w-full py-4 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-extrabold text-xs uppercase tracking-wider rounded-2xl flex items-center justify-center space-x-2 shadow-lg shadow-amber-500/20 active:scale-95 transition">
-                    <i class="fa-solid fa-bag-shopping text-sm"></i>
+                <button onclick="ouvrirLienVinted()" class="w-full py-4 bg-white text-black font-black text-[11px] uppercase tracking-widest rounded-2xl flex items-center justify-center space-x-2 shadow-xl active:scale-95 transition">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
                     <span>Acheter Vinted</span>
                 </button>
-                <button onclick="fermerModal()" class="w-full py-4 bg-cardDark hover:bg-slate-800 text-slate-300 font-semibold text-xs uppercase tracking-wider rounded-2xl border border-white/5 active:scale-95 transition">
+                <button onclick="fermerModal()" class="w-full py-4 bg-neutral-900 text-neutral-300 font-bold text-[11px] uppercase tracking-widest rounded-2xl border border-neutral-800 active:scale-95 transition">
                     Fermer
                 </button>
             </div>
@@ -177,17 +153,15 @@
         if (window.Telegram && window.Telegram.WebApp) {
             window.Telegram.WebApp.ready();
             window.Telegram.WebApp.expand();
-            window.Telegram.WebApp.setHeaderColor('#080B11');
+            window.Telegram.WebApp.setHeaderColor('#000000');
         }
 
         function ouvrirLienVinted() {
             if (!lienVintedActuel) return;
-
-            // Détection et ouverture sécurisée Telegram / Web
             if (window.Telegram && window.Telegram.WebApp && typeof window.Telegram.WebApp.openLink === 'function') {
                 window.Telegram.WebApp.openLink(lienVintedActuel, { try_instant_view: false });
             } else {
-                window.open(lienVintedActuel, '_blank', 'noopener,noreferrer');
+                window.open(lienVintedActuel, '_blank');
             }
         }
 
@@ -204,24 +178,80 @@
 
                 if (articles.length === 0) {
                     container.innerHTML = `
-                        <div class="col-span-2 text-center py-16 text-slate-500">
-                            <i class="fa-solid fa-crown text-2xl text-amber-500/40 mb-3 block animate-pulse"></i>
-                            <p class="text-xs font-light tracking-wide">Scan Vinted Private Vault en cours...</p>
+                        <div class="col-span-2 text-center py-20 text-neutral-600">
+                            <i class="fa-solid fa-circle-notch fa-spin text-xl text-neutral-400 mb-3 block"></i>
+                            <p class="text-[11px] font-medium tracking-wider uppercase">Scan Vault en cours...</p>
                         </div>
                     `;
                 } else {
                     articles.forEach(art => {
                         const card = document.createElement('div');
-                        card.className = "bg-cardDark/90 rounded-3xl border border-white/5 overflow-hidden flex flex-col justify-between active:scale-[0.97] transition duration-200 cursor-pointer shadow-xl relative group";
+                        card.className = "bg-cardGray rounded-2xl border border-neutral-900 overflow-hidden flex flex-col justify-between active:scale-[0.97] transition duration-200 cursor-pointer shadow-lg relative group";
                         card.onclick = () => ouvrirModal(art);
 
                         card.innerHTML = `
-                            <div class="relative aspect-square bg-onyx overflow-hidden">
-                                <img src="${art.image}" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src='${FALLBACK_IMG}';" alt="${art.titre}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                                <div class="absolute inset-0 bg-gradient-to-t from-onyx via-transparent to-transparent opacity-60"></div>
-                                <span class="absolute top-2.5 left-2.5 bg-onyx/80 backdrop-blur-md text-emerald-400 text-[10px] font-extrabold px-2.5 py-1 rounded-xl border border-emerald-500/30">
+                            <div class="relative aspect-square bg-black overflow-hidden">
+                                <img src="${art.image}" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src='${FALLBACK_IMG}';" alt="${art.titre}" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition duration-500">
+                                <span class="absolute top-2 left-2 bg-black/90 backdrop-blur-md text-white text-[9px] font-extrabold px-2 py-0.5 rounded-lg border border-neutral-800">
                                     +${art.benefice} €
                                 </span>
                             </div>
-                            <div class="p-3.5 flex flex-col justify-between flex-1">
-                                <h4 class="text-xs font-medium text-slate-200 line-clamp-2
+                            <div class="p-3 flex flex-col justify-between flex-1">
+                                <h4 class="text-[11px] font-medium text-neutral-200 line-clamp-2 leading-tight mb-2">${art.titre}</h4>
+                                <div class="flex items-center justify-between pt-2 border-t border-neutral-900">
+                                    <span class="text-xs font-bold text-white">${art.prix} €</span>
+                                    <span class="text-[9px] font-bold text-neutral-400">
+                                        📈 ${art.revente} €
+                                    </span>
+                                </div>
+                            </div>
+                        `;
+                        container.appendChild(card);
+                    });
+                }
+
+                loading.classList.add('hidden');
+                container.classList.remove('hidden');
+
+            } catch (err) {
+                console.error("Erreur :", err);
+            }
+        }
+
+        function ouvrirModal(article) {
+            lienVintedActuel = article.lien || "https://www.vinted.fr";
+            
+            const modalImg = document.getElementById('modal-img');
+            modalImg.src = article.image;
+            modalImg.onerror = function() {
+                this.onerror = null;
+                this.src = FALLBACK_IMG;
+            };
+
+            document.getElementById('modal-cat').innerText = article.type_article || 'VAULT SELECTION';
+            document.getElementById('modal-title').innerText = article.titre;
+            document.getElementById('modal-prix').innerText = `${article.prix} €`;
+            document.getElementById('modal-revente').innerText = `${article.revente} €`;
+            document.getElementById('modal-benefice').innerText = `+${article.benefice} €`;
+
+            const modal = document.getElementById('product-modal');
+            const box = document.getElementById('modal-content-box');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => box.classList.remove('translate-y-full'), 10);
+        }
+
+        function fermerModal() {
+            const modal = document.getElementById('product-modal');
+            const box = document.getElementById('modal-content-box');
+            box.classList.add('translate-y-full');
+            setTimeout(() => {
+                modal.classList.remove('flex');
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        document.addEventListener('DOMContentLoaded', chargerAnnonces);
+    </script>
+</body>
+</html>
