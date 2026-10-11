@@ -10,7 +10,7 @@ from playwright.async_api import async_playwright
 import requests
 
 # ------------------------------------------------------------------
-# CONFIGURATION VAULT ULTIMATE
+# CONFIGURATION VAULT ULTIMATE & PERSISTENCE
 # ------------------------------------------------------------------
 TELEGRAM_BOT_TOKEN = "8829917220:AAE8WEpEr0lHgrM2UAw5Ls8IRmV50G6AZr4"
 TELEGRAM_CHAT_ID = "7467187588"
@@ -21,7 +21,7 @@ app = Flask(__name__)
 
 
 # ------------------------------------------------------------------
-# BASE DE DONNÉES SQLite (STOCKAGE HAUTE CAPACITÉ)
+# BASE DE DONNÉES SQLite (PERSISTANTE)
 # ------------------------------------------------------------------
 def init_db():
   try:
@@ -67,7 +67,7 @@ def enregistrer_annonce(lien, prix, titre, image_url, type_article):
 
 
 # ------------------------------------------------------------------
-# API FLASK POUR LA MINI-APP TELEGRAM (FEED SCROLL INFINI)
+# API FLASK
 # ------------------------------------------------------------------
 @app.route("/")
 @app.route("/app")
@@ -88,8 +88,8 @@ def get_annonces():
     conn = sqlite3.connect("vinted_ultime.db", timeout=10)
     cursor = conn.cursor()
     cursor.execute(
-        "SELECT lien, prix, titre, image_url, type_article FROM annonces ORDER"
-        " BY ROWID DESC LIMIT 300"
+        "SELECT lien, prix, titre, image_url, type_article, date_ajout FROM"
+        " annonces ORDER BY ROWID DESC LIMIT 300"
     )
     rows = cursor.fetchall()
     conn.close()
@@ -105,13 +105,11 @@ def get_annonces():
             r[4],
         )
 
-        # Calcul financier précis
         frais_vinted = 0.70 + (prix_achat * 0.05)
         frais_port = 3.50
         cout_total = round(prix_achat + frais_vinted + frais_port, 2)
 
-        # Coefficient de revente estimé
-        coef_revente = 2.2 if "Sneakers" in type_art else 2.1
+        coef_revente = 2.2 if "Sneakers" in str(type_art) else 2.1
         revente_est = round(prix_achat * coef_revente, 2)
         if revente_est < prix_achat + 25.0:
           revente_est = round(prix_achat + 30.0, 2)
@@ -145,7 +143,7 @@ def demarrer_flask():
 
 
 # ------------------------------------------------------------------
-# CONFIGURATION DES RECHERCHES & FILTRES ANTI-DÉFAUTS
+# CONFIGURATION RECHERCHES & MOTS CLES
 # ------------------------------------------------------------------
 CATALOG_HOMME = "&catalog[]=5"
 CATALOG_CHAUSSURES = "&catalog[]=1231"
@@ -156,7 +154,6 @@ TAILLES_SNEAKERS = (
 ETAT_EXCELLENT = "&status_ids[]=6&status_ids[]=1&status_ids[]=2"
 
 MOTS_CLES_EXCLUS = [
-    # Défauts & Usure
     "trou",
     "trous",
     "tache",
@@ -171,13 +168,11 @@ MOTS_CLES_EXCLUS = [
     "reparer",
     "décoloré",
     "semelle usée",
-    # Contrefaçons
     "fake",
     "faux",
     "replica",
     "replique",
     "ua quality",
-    # Articles non désirés
     "pyjama",
     "short",
     "maillot de bain",
@@ -188,7 +183,6 @@ MOTS_CLES_EXCLUS = [
     "bonnet",
     "echarpe",
     "gants",
-    # Pop-Culture & Fast Fashion
     "star wars",
     "starwars",
     "marvel",
@@ -209,7 +203,6 @@ MOTS_CLES_EXCLUS = [
 ]
 
 RECHERCHES = [
-    # --- SNEAKERS HIGH-MARGIN ---
     {
         "mot_cle": "Nike Dunk Low",
         "type_article": "Sneakers",
@@ -266,7 +259,6 @@ RECHERCHES = [
         "cat": CATALOG_CHAUSSURES,
         "size": TAILLES_SNEAKERS,
     },
-    # --- VÊTEMENTS LUXE & STREETWEAR ---
     {
         "mot_cle": "Doudoune Ralph Lauren",
         "type_article": "Ralph Lauren",
@@ -372,10 +364,11 @@ def envoyer_notification_telegram(affaire):
       f"▪️ <b>Bénéfice Net :</b> +{affaire['benefice']} €\n\n"
       f"<i>Consultez le Vault pour verrouiller l'achat.</i>"
   )
+  # Remplacement par "url" pour ouvrir Safari / Navigateur externe directement
   keyboard = {
       "inline_keyboard": [[{
           "text": "⚡ ACCÉDER AU VAULT",
-          "web_app": {"url": f"{render_url}/app"},
+          "url": f"{render_url}/app",
       }]]
   }
   url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
