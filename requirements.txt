@@ -1,5 +1,4 @@
-playwright
-google-genai
-requests
 flask
+playwright
+requests
 psycopg2-binary
