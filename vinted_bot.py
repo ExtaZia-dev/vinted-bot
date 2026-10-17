@@ -11,7 +11,7 @@ import psycopg2
 import requests
 
 # ------------------------------------------------------------------
-# CONFIGURATION
+# CONFIGURATION SNIPESTUDIO
 # ------------------------------------------------------------------
 TELEGRAM_BOT_TOKEN = "8829917220:AAE8WEpEr0lHgrM2UAw5Ls8IRmV50G6AZr4"
 TELEGRAM_CHAT_ID = "7467187588"
@@ -28,12 +28,11 @@ def get_db_connection():
     hostname = parsed_url.hostname
     port = parsed_url.port or 6543
     
-    # Résolution manuelle stricte en IPv4 pour contourner Render/Libpq
     ipv4_host = hostname
     try:
         addrs = socket.getaddrinfo(hostname, port, socket.AF_INET, socket.SOCK_STREAM)
         if addrs:
-            ipv4_host = addrs[0][4][0]  # Récupère la première IP IPv4
+            ipv4_host = addrs[0][4][0]
     except Exception as e:
         print(f"⚠️ [DB] Erreur résolution IPv4, utilisation du host par défaut: {e}", flush=True)
 
@@ -62,7 +61,7 @@ def init_db():
         conn.commit()
         cursor.close()
         conn.close()
-        print("✅ [DB] Supabase connectée et initialisée avec succès !", flush=True)
+        print("✅ [DB] Supabase connectée et initialisée pour SnipeStudio !", flush=True)
     except Exception as e:
         print(f"❌ [DB] Erreur Init Supabase: {e}", flush=True)
 
@@ -88,14 +87,14 @@ def enregistrer_annonce(lien, prix, titre, image_url, type_article):
     return False
 
 # ------------------------------------------------------------------
-# API FLASK
+# API FLASK (SNIPESTUDIO UI)
 # ------------------------------------------------------------------
 @app.route("/")
 @app.route("/app")
 def serve_app():
     if os.path.exists("app.html"):
         return send_file("app.html")
-    return "<h1>VAULT // Core System Online</h1>", 200
+    return "<h1>SnipeStudio // AI Resell Engine Online</h1>", 200
 
 @app.route("/healthz")
 def health():
@@ -124,15 +123,15 @@ def get_annonces():
                 cout_total = round(prix_achat + frais_vinted + 3.50, 2)
                 coef_revente = 2.2 if "Sneakers" in str(type_art) else 2.1
                 revente_est = round(prix_achat * coef_revente, 2)
-                if revente_est < prix_achat + 25.0:
-                    revente_est = round(prix_achat + 30.0, 2)
+                if revente_est < prix_achat + 15.0:
+                    revente_est = round(prix_achat + 20.0, 2)
 
                 benef_net = round(revente_est - cout_total, 2)
 
                 annonces.append({
                     "id": idx + 1,
-                    "titre": titre_art or "Pièce Exclusive Vault",
-                    "type_article": type_art or "Sélection Luxe",
+                    "titre": titre_art or "Pièce Exclusive SnipeStudio",
+                    "type_article": type_art or "Sélection Premium",
                     "prix": prix_achat,
                     "cout_total": cout_total,
                     "revente": revente_est,
@@ -147,7 +146,7 @@ def get_annonces():
     return jsonify([])
 
 # ------------------------------------------------------------------
-# CATALOGUES & RECHERCHES
+# CATALOGUES & RECHERCHES STRICTEMENT SOUS LES 20€
 # ------------------------------------------------------------------
 CATALOG_HOMME = "&catalog[]=5"
 CATALOG_CHAUSSURES = "&catalog[]=1231"
@@ -164,46 +163,41 @@ MOTS_CLES_EXCLUS = [
     "manga", "mario", "pokemon", "disney", "kiabi", "primark", "zara", "h&m"
 ]
 
+# TOUTES LES RECHERCHES SONT MAINTENANT STRICTEMENT < 20€
 RECHERCHES = [
-    {"mot_cle": "Nike Dunk Low", "type_article": "Sneakers", "prix_max": 50.0, "revente_base": 100.0, "cat": CATALOG_CHAUSSURES, "size": TAILLES_SNEAKERS},
-    {"mot_cle": "Jordan 4", "type_article": "Sneakers", "prix_max": 80.0, "revente_base": 160.0, "cat": CATALOG_CHAUSSURES, "size": TAILLES_SNEAKERS},
-    {"mot_cle": "Jordan 1 Low", "type_article": "Sneakers", "prix_max": 50.0, "revente_base": 105.0, "cat": CATALOG_CHAUSSURES, "size": TAILLES_SNEAKERS},
-    {"mot_cle": "Salomon XT-6", "type_article": "Sneakers", "prix_max": 65.0, "revente_base": 130.0, "cat": CATALOG_CHAUSSURES, "size": TAILLES_SNEAKERS},
-    {"mot_cle": "New Balance 1906R", "type_article": "Sneakers", "prix_max": 60.0, "revente_base": 120.0, "cat": CATALOG_CHAUSSURES, "size": TAILLES_SNEAKERS},
-    {"mot_cle": "New Balance 2002R", "type_article": "Sneakers", "prix_max": 55.0, "revente_base": 115.0, "cat": CATALOG_CHAUSSURES, "size": TAILLES_SNEAKERS},
-    {"mot_cle": "Adidas Campus 00s", "type_article": "Sneakers", "prix_max": 45.0, "revente_base": 90.0, "cat": CATALOG_CHAUSSURES, "size": TAILLES_SNEAKERS},
-    {"mot_cle": "Doudoune Ralph Lauren", "type_article": "Ralph Lauren", "prix_max": 50.0, "revente_base": 110.0, "cat": CATALOG_HOMME, "size": TAILLES_HABITS},
-    {"mot_cle": "Sweat Ralph Lauren Bear", "type_article": "Ralph Lauren", "prix_max": 35.0, "revente_base": 75.0, "cat": CATALOG_HOMME, "size": TAILLES_HABITS},
-    {"mot_cle": "Pull Ralph Lauren torsadé", "type_article": "Ralph Lauren", "prix_max": 25.0, "revente_base": 55.0, "cat": CATALOG_HOMME, "size": TAILLES_HABITS},
-    {"mot_cle": "Carhartt Detroit Jacket", "type_article": "Carhartt", "prix_max": 50.0, "revente_base": 110.0, "cat": CATALOG_HOMME, "size": TAILLES_HABITS},
-    {"mot_cle": "Carhartt Active Jacket", "type_article": "Carhartt", "prix_max": 40.0, "revente_base": 85.0, "cat": CATALOG_HOMME, "size": TAILLES_HABITS},
-    {"mot_cle": "Arc'teryx jacket", "type_article": "Techwear", "prix_max": 60.0, "revente_base": 130.0, "cat": CATALOG_HOMME, "size": TAILLES_HABITS},
-    {"mot_cle": "North Face Nuptse 700", "type_article": "Techwear", "prix_max": 60.0, "revente_base": 130.0, "cat": CATALOG_HOMME, "size": TAILLES_HABITS},
-    {"mot_cle": "Sweat Stussy", "type_article": "Streetwear", "prix_max": 30.0, "revente_base": 70.0, "cat": CATALOG_HOMME, "size": TAILLES_HABITS},
-    {"mot_cle": "Corteiz hoodie", "type_article": "Streetwear", "prix_max": 45.0, "revente_base": 95.0, "cat": CATALOG_HOMME, "size": TAILLES_HABITS},
-    {"mot_cle": "Stone Island sweat", "type_article": "Streetwear", "prix_max": 65.0, "revente_base": 140.0, "cat": CATALOG_HOMME, "size": TAILLES_HABITS},
-    {"mot_cle": "CP Company jacket", "type_article": "Streetwear", "prix_max": 65.0, "revente_base": 140.0, "cat": CATALOG_HOMME, "size": TAILLES_HABITS},
+    {"mot_cle": "Nike Dunk Low", "type_article": "Sneakers", "prix_max": 20.0, "revente_base": 45.0, "cat": CATALOG_CHAUSSURES, "size": TAILLES_SNEAKERS},
+    {"mot_cle": "Jordan 1 Low", "type_article": "Sneakers", "prix_max": 20.0, "revente_base": 45.0, "cat": CATALOG_CHAUSSURES, "size": TAILLES_SNEAKERS},
+    {"mot_cle": "Adidas Campus 00s", "type_article": "Sneakers", "prix_max": 18.0, "revente_base": 40.0, "cat": CATALOG_CHAUSSURES, "size": TAILLES_SNEAKERS},
+    {"mot_cle": "Sweat Ralph Lauren", "type_article": "Ralph Lauren", "prix_max": 15.0, "revente_base": 35.0, "cat": CATALOG_HOMME, "size": TAILLES_HABITS},
+    {"mot_cle": "Pull Ralph Lauren torsadé", "type_article": "Ralph Lauren", "prix_max": 18.0, "revente_base": 40.0, "cat": CATALOG_HOMME, "size": TAILLES_HABITS},
+    {"mot_cle": "Polo Ralph Lauren", "type_article": "Ralph Lauren", "prix_max": 12.0, "revente_base": 30.0, "cat": CATALOG_HOMME, "size": TAILLES_HABITS},
+    {"mot_cle": "Carhartt WIP t-shirt", "type_article": "Carhartt", "prix_max": 15.0, "revente_base": 35.0, "cat": CATALOG_HOMME, "size": TAILLES_HABITS},
+    {"mot_cle": "Carhartt sweat", "type_article": "Carhartt", "prix_max": 20.0, "revente_base": 45.0, "cat": CATALOG_HOMME, "size": TAILLES_HABITS},
+    {"mot_cle": "Sweat Stussy", "type_article": "Streetwear", "prix_max": 18.0, "revente_base": 40.0, "cat": CATALOG_HOMME, "size": TAILLES_HABITS},
+    {"mot_cle": "Corteiz t-shirt", "type_article": "Streetwear", "prix_max": 15.0, "revente_base": 35.0, "cat": CATALOG_HOMME, "size": TAILLES_HABITS},
+    {"mot_cle": "Arc'teryx t-shirt", "type_article": "Techwear", "prix_max": 15.0, "revente_base": 35.0, "cat": CATALOG_HOMME, "size": TAILLES_HABITS},
+    {"mot_cle": "The North Face tee", "type_article": "Techwear", "prix_max": 12.0, "revente_base": 30.0, "cat": CATALOG_HOMME, "size": TAILLES_HABITS},
 ]
 
 def envoyer_notification_telegram(affaire):
     message = (
-        f"🖤 <b>VAULT // NOUVELLE PÉPITE DETECTÉE</b>\n\n"
+        f"🎯 <b>SNIPESTUDIO // NOUVELLE PÉPITE DÉTECTÉE</b>\n\n"
         f"▪️ <b>{affaire['titre']}</b>\n"
-        f"▫️ <b>Achat :</b> {affaire['prix']} € | <b>Revente :</b> {affaire['revente_finale']} €\n"
+        f"▫️ <b>Achat max :</b> {affaire['prix']} € | <b>Revente :</b> {affaire['revente_finale']} €\n"
         f"▪️ <b>Bénéfice Net :</b> +{affaire['benefice']} €\n\n"
-        f"<i>Consultez le Vault pour verrouiller l'achat.</i>"
+        f"<i>Ouvrez SnipeStudio pour verrouiller l'affaire.</i>"
     )
     render_url = os.environ.get("RENDER_EXTERNAL_URL", "https://vinted-bot-dptd.onrender.com")
-    keyboard = {"inline_keyboard": [[{"text": "⚡ ACCÉDER AU VAULT", "web_app": {"url": f"{render_url}/app"}}]]}
+    keyboard = {"inline_keyboard": [[{"text": "⚡ ACCÉDER À SNIPESTUDIO", "web_app": {"url": f"{render_url}/app"}}]]}
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
     try:
         requests.post(url, data={"chat_id": TELEGRAM_CHAT_ID, "text": message, "parse_mode": "HTML", "reply_markup": json.dumps(keyboard)}, timeout=5)
-        print("📩 [TELEGRAM] Notification envoyée !", flush=True)
+        print("📩 [TELEGRAM] Notification SnipeStudio envoyée !", flush=True)
     except Exception as e:
         print(f"❌ [TELEGRAM] Erreur d'envoi: {e}", flush=True)
 
 async def scanner_vinted(browser):
-    print("🔍 [SCRAPER] Démarrage d'un cycle de scan Vinted...", flush=True)
+    print("🔍 [SCRAPER] Démarrage d'un cycle de scan SnipeStudio (<20€)...", flush=True)
     try:
         context = await browser.new_context(
             user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
@@ -267,11 +261,11 @@ async def scanner_vinted(browser):
                     if 0 < prix <= prix_max and lien:
                         est_nouveau = enregistrer_annonce(lien, prix, titre, image_url, type_article)
                         if est_nouveau:
-                            print(f"✨ [NOUVEAU] Article trouvé : {titre} - {prix}€", flush=True)
+                            print(f"✨ [NOUVEAU] Pépite <20€ trouvée : {titre} - {prix}€", flush=True)
                             frais = 0.70 + (prix * 0.05) + 3.50
                             benefice = round(revente_base - (prix + frais), 2)
                             
-                            if benefice >= 12.0:
+                            if benefice >= 8.0:
                                 affaire = {
                                     "titre": titre.strip(),
                                     "prix": prix,
@@ -294,10 +288,10 @@ def lancer_bot_async():
     
     async def run_loop():
         init_db()
-        print("🚀 [SYSTEM] Vault Engine activé !", flush=True)
+        print("🚀 [SYSTEM] SnipeStudio Engine activé (Budget max < 20€) !", flush=True)
         while True:
             try:
-                async with async_playwright() as p:
+                async async_playwright() as p:
                     browser = await p.chromium.launch(
                         headless=True,
                         args=[
