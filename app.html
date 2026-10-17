@@ -5,20 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>SnipeStudio | AI Resell Engine</title>
 
-    <!-- METATAGS PWA / MODE APPLI AUTONOME iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="SnipeStudio">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0B0F19">
 
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Telegram WebApp Script -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
@@ -60,13 +55,8 @@
             -webkit-backdrop-filter: blur(25px);
             border-bottom: 1px solid rgba(99, 102, 241, 0.15);
         }
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="text-slate-100 min-h-screen pb-28 select-none">
@@ -97,13 +87,11 @@
             </div>
         </div>
 
-        <!-- RECHERCHE TEXTUELLE TEMPS RÉEL -->
         <div class="relative mb-3">
             <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
             <input type="text" id="search-input" oninput="filtrerParRecherche()" placeholder="Rechercher une pépite, marque, sneakers..." class="w-full bg-cardSlate border border-borderSlate rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 transition shadow-inner">
         </div>
 
-        <!-- FILTRES PAR BADGES / PILLS -->
         <div class="flex space-x-2 overflow-x-auto no-scrollbar pt-1 pb-1">
             <button onclick="filtrerMarque('TOUS')" id="btn-tous" class="px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-indigo-600 text-white transition shrink-0 shadow-md shadow-indigo-600/30">Tous</button>
             <button onclick="filtrerMarque('Sneakers')" id="btn-sneakers" class="px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-cardSlate text-slate-400 border border-borderSlate transition shrink-0">👟 Sneakers</button>
@@ -116,8 +104,6 @@
 
     <!-- MAIN FEED -->
     <main class="p-4 max-w-md mx-auto">
-        
-        <!-- BARRE DE TRI -->
         <div class="flex items-center justify-between mb-4 px-1">
             <span class="text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400">Flux En Direct</span>
             <select id="tri-select" onchange="triAnnonces()" class="bg-cardSlate border border-borderSlate text-slate-300 text-[10px] rounded-lg px-2.5 py-1.5 font-bold focus:outline-none focus:border-indigo-500">
@@ -127,7 +113,6 @@
             </select>
         </div>
 
-        <!-- SKELETON LOADING -->
         <div id="loading-state" class="grid grid-cols-2 gap-3">
             <div class="bg-cardSlate rounded-2xl h-72 animate-pulse border border-borderSlate/50"></div>
             <div class="bg-cardSlate rounded-2xl h-72 animate-pulse border border-borderSlate/50"></div>
@@ -135,45 +120,68 @@
             <div class="bg-cardSlate rounded-2xl h-72 animate-pulse border border-borderSlate/50"></div>
         </div>
 
-        <!-- GRILLE D'ARTICLES -->
         <div id="annonces-container" class="grid grid-cols-2 gap-3.5 hidden">
             <!-- Injecté via JS -->
         </div>
     </main>
 
-    <!-- POPUP MODAL SHOWROOM -->
+    <!-- POPUP MODAL SHOWROOM & STUDIO PHOTO -->
     <div id="product-modal" class="fixed inset-0 z-50 bg-slateDark/95 backdrop-blur-xl hidden flex-col justify-end transition-all duration-300">
         <div id="modal-content-box" class="bg-cardSlate border-t border-borderSlate rounded-t-[36px] max-h-[88vh] overflow-y-auto p-6 transform translate-y-full transition-transform duration-300 ease-out shadow-2xl pb-12">
             
             <div class="w-10 h-1 bg-borderSlate rounded-full mx-auto mb-5"></div>
             
-            <div class="relative rounded-2xl overflow-hidden mb-5 bg-slateDark aspect-square border border-borderSlate shadow-xl">
+            <div class="relative rounded-2xl overflow-hidden mb-4 bg-slateDark aspect-square border border-borderSlate shadow-xl">
                 <img id="modal-img" src="" referrerpolicy="no-referrer" alt="Produit SnipeStudio" class="w-full h-full object-cover">
+                <span id="modal-condition-badge" class="absolute bottom-3 left-3 bg-slateDark/90 backdrop-blur-md text-indigo-300 text-[10px] font-black px-2.5 py-1 rounded-lg border border-indigo-500/30">
+                    <i class="fa-solid fa-sparkles text-indigo-400 mr-1"></i> Condition <span id="modal-cond-val">9.5/10</span>
+                </span>
+            </div>
+
+            <!-- GALERIE STUDIO 4 POSES -->
+            <div class="mb-5">
+                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-2"><i class="fa-solid fa-camera-retro mr-1 text-indigo-400"></i> Studio Photo 4 Poses Revente</span>
+                <div class="grid grid-cols-4 gap-2" id="studio-poses-box">
+                    <!-- Injecté par JS -->
+                </div>
             </div>
 
             <div class="flex items-center justify-between mb-2">
                 <span id="modal-cat" class="text-[10px] font-black text-indigo-400 uppercase tracking-[0.25em]"></span>
                 <div class="flex items-center space-x-1 text-slate-200 text-xs font-bold bg-slateDark px-2.5 py-1 rounded-lg border border-borderSlate">
-                    <i class="fa-solid fa-sparkles text-[10px] text-indigo-400"></i>
-                    <span>AI Verified</span>
+                    <i class="fa-solid fa-shield-check text-[10px] text-emerald-400"></i>
+                    <span>IA Verified</span>
                 </div>
             </div>
 
-            <h3 id="modal-title" class="text-sm font-bold text-white mb-5 leading-snug"></h3>
+            <h3 id="modal-title" class="text-sm font-bold text-white mb-4 leading-snug"></h3>
 
-            <div class="grid grid-cols-3 gap-2 bg-slateDark p-4 rounded-2xl border border-borderSlate mb-6 text-center shadow-inner">
+            <div class="grid grid-cols-3 gap-2 bg-slateDark p-3.5 rounded-2xl border border-borderSlate mb-4 text-center shadow-inner">
                 <div>
-                    <span class="block text-[8px] text-slate-400 font-bold uppercase tracking-wider">Achat max</span>
+                    <span class="block text-[8px] text-slate-400 font-bold uppercase tracking-wider">Prix Affiché</span>
                     <span id="modal-prix" class="text-xs font-bold text-white mt-1 block"></span>
                 </div>
                 <div class="border-x border-borderSlate">
-                    <span class="block text-[8px] text-slate-400 font-bold uppercase tracking-wider">Revente</span>
+                    <span class="block text-[8px] text-slate-400 font-bold uppercase tracking-wider">Revente Est.</span>
                     <span id="modal-revente" class="text-xs font-bold text-slate-300 mt-1 block"></span>
                 </div>
                 <div>
-                    <span class="block text-[8px] text-slate-400 font-bold uppercase tracking-wider">Bénéfice</span>
+                    <span class="block text-[8px] text-slate-400 font-bold uppercase tracking-wider">Marge Nette</span>
                     <span id="modal-benefice" class="text-xs font-black text-emeraldBrand mt-1 block"></span>
                 </div>
+            </div>
+
+            <!-- MODULE ASSISTANT NÉGOCIATION -->
+            <div class="bg-indigo-950/40 border border-indigo-500/20 p-4 rounded-2xl mb-5">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] font-bold text-indigo-300 uppercase tracking-wider"><i class="fa-solid fa-comments-dollar mr-1"></i> Offre Négociée Conseillée</span>
+                    <span id="modal-offre-nego" class="text-xs font-extrabold text-emerald-400">12.0 €</span>
+                </div>
+                <p id="modal-msg-text" class="text-[10px] text-slate-300 italic mb-3 bg-slateDark/60 p-2.5 rounded-xl border border-borderSlate/40"></p>
+                <button onclick="copierMsgNego()" id="btn-copy-msg" class="w-full py-2 bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 text-[10px] font-bold rounded-xl border border-indigo-500/40 transition flex items-center justify-center space-x-1.5">
+                    <i class="fa-regular fa-copy"></i>
+                    <span>Copier le message de négociation</span>
+                </button>
             </div>
 
             <div class="grid grid-cols-2 gap-3">
@@ -191,6 +199,7 @@
     <script>
         const FALLBACK_IMG = 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=600&q=80';
         let lienVintedActuel = "";
+        let msgNegoActuel = "";
         let listeArticlesGlobale = [];
         let marqueActive = 'TOUS';
 
@@ -207,6 +216,17 @@
             } else {
                 window.open(lienVintedActuel, '_blank');
             }
+        }
+
+        function copierMsgNego() {
+            if (!msgNegoActuel) return;
+            navigator.clipboard.writeText(msgNegoActuel).then(() => {
+                const btn = document.getElementById('btn-copy-msg');
+                btn.innerHTML = '<i class="fa-solid fa-check text-emerald-400"></i> Copié !';
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fa-regular fa-copy"></i> Copier le message de négociation';
+                }, 2000);
+            });
         }
 
         async function chargerAnnonces() {
@@ -235,7 +255,6 @@
 
         function filtrerMarque(marque) {
             marqueActive = marque;
-            
             ['tous', 'sneakers', 'ralph', 'carhartt', 'techwear', 'streetwear'].forEach(id => {
                 const btn = document.getElementById(`btn-${id}`);
                 if (btn) btn.className = "px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-cardSlate text-slate-400 border border-borderSlate transition shrink-0";
@@ -253,9 +272,7 @@
             afficherArticles();
         }
 
-        function filtrerParRecherche() {
-            afficherArticles();
-        }
+        function filtrerParRecherche() { afficherArticles(); }
 
         function triAnnonces() {
             const mode = document.getElementById('tri-select').value;
@@ -305,6 +322,9 @@
                         <span class="absolute top-2 left-2 bg-slateDark/90 backdrop-blur-md text-emeraldBrand text-[9px] font-black px-2 py-0.5 rounded-lg border border-borderSlate shadow-sm">
                             +${art.benefice} €
                         </span>
+                        <span class="absolute bottom-2 right-2 bg-indigo-950/80 backdrop-blur-md text-indigo-300 text-[8px] font-bold px-1.5 py-0.5 rounded border border-indigo-500/30">
+                            ⭐ ${art.condition || '9.0/10'}
+                        </span>
                     </div>
                     <div class="p-3.5 flex flex-col justify-between flex-1">
                         <h4 class="text-[11px] font-medium text-slate-200 line-clamp-2 leading-tight mb-3">${art.titre}</h4>
@@ -322,6 +342,7 @@
 
         function ouvrirModal(article) {
             lienVintedActuel = article.lien || "https://www.vinted.fr";
+            msgNegoActuel = article.msg_nego || "";
             
             const modalImg = document.getElementById('modal-img');
             modalImg.src = article.image;
@@ -330,11 +351,35 @@
                 this.src = FALLBACK_IMG;
             };
 
+            // Remplissage des 4 poses studio
+            const posesContainer = document.getElementById('studio-poses-box');
+            posesContainer.innerHTML = '';
+            const poses = article.studio_poses || [
+                {pose: "Face", url: article.image},
+                {pose: "Profil", url: article.image},
+                {pose: "Zoom", url: article.image},
+                {pose: "Studio", url: article.image}
+            ];
+
+            poses.forEach(p => {
+                const imgDiv = document.createElement('div');
+                imgDiv.className = "relative aspect-square rounded-xl overflow-hidden border border-borderSlate bg-slateDark cursor-pointer";
+                imgDiv.onclick = () => { modalImg.src = p.url; };
+                imgDiv.innerHTML = `
+                    <img src="${p.url}" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src='${FALLBACK_IMG}';" class="w-full h-full object-cover">
+                    <span class="absolute bottom-1 left-1 right-1 text-[7px] bg-slateDark/80 text-center text-slate-300 rounded font-bold uppercase truncate">${p.pose}</span>
+                `;
+                posesContainer.appendChild(imgDiv);
+            });
+
             document.getElementById('modal-cat').innerText = article.type_article || 'SNIPESTUDIO SELECTION';
             document.getElementById('modal-title').innerText = article.titre;
             document.getElementById('modal-prix').innerText = `${article.prix} €`;
             document.getElementById('modal-revente').innerText = `${article.revente} €`;
             document.getElementById('modal-benefice').innerText = `+${article.benefice} €`;
+            document.getElementById('modal-cond-val').innerText = article.condition || '9.0/10';
+            document.getElementById('modal-offre-nego').innerText = `${article.offre_nego || Math.round(article.prix * 0.85)} €`;
+            document.getElementById('modal-msg-text').innerText = `"${msgNegoActuel}"`;
 
             const modal = document.getElementById('product-modal');
             const box = document.getElementById('modal-content-box');
