@@ -163,5 +163,71 @@ MOTS_CLES_EXCLUS = [
     "manga", "mario", "pokemon", "disney", "kiabi", "primark", "zara", "h&m"
 ]
 
-# RECHERCHES STRICTEMENT BRIDÉES À MAX 20€
-RECHERCHES =
+RECHERCHES = [
+    {"mot_cle": "Nike Dunk Low", "type_article": "Sneakers", "prix_max": 20.0, "revente_base": 45.0, "cat": CATALOG_CHAUSSURES, "size": TAILLES_SNEAKERS},
+    {"mot_cle": "Jordan 1 Low", "type_article": "Sneakers", "prix_max": 20.0, "revente_base": 45.0, "cat": CATALOG_CHAUSSURES, "size": TAILLES_SNEAKERS},
+    {"mot_cle": "Adidas Campus 00s", "type_article": "Sneakers", "prix_max": 18.0, "revente_base": 40.0, "cat": CATALOG_CHAUSSURES, "size": TAILLES_SNEAKERS},
+    {"mot_cle": "Sweat Ralph Lauren", "type_article": "Ralph Lauren", "prix_max": 15.0, "revente_base": 35.0, "cat": CATALOG_HOMME, "size": TAILLES_HABITS},
+    {"mot_cle": "Pull Ralph Lauren torsadé", "type_article": "Ralph Lauren", "prix_max": 18.0, "revente_base": 40.0, "cat": CATALOG_HOMME, "size": TAILLES_HABITS},
+    {"mot_cle": "Polo Ralph Lauren", "type_article": "Ralph Lauren", "prix_max": 12.0, "revente_base": 30.0, "cat": CATALOG_HOMME, "size": TAILLES_HABITS},
+    {"mot_cle": "Carhartt WIP t-shirt", "type_article": "Carhartt", "prix_max": 15.0, "revente_base": 35.0, "cat": CATALOG_HOMME, "size": TAILLES_HABITS},
+    {"mot_cle": "Carhartt sweat", "type_article": "Carhartt", "prix_max": 20.0, "revente_base": 45.0, "cat": CATALOG_HOMME, "size": TAILLES_HABITS},
+    {"mot_cle": "Sweat Stussy", "type_article": "Streetwear", "prix_max": 18.0, "revente_base": 40.0, "cat": CATALOG_HOMME, "size": TAILLES_HABITS},
+    {"mot_cle": "Corteiz t-shirt", "type_article": "Streetwear", "prix_max": 15.0, "revente_base": 35.0, "cat": CATALOG_HOMME, "size": TAILLES_HABITS},
+    {"mot_cle": "Arc'teryx t-shirt", "type_article": "Techwear", "prix_max": 15.0, "revente_base": 35.0, "cat": CATALOG_HOMME, "size": TAILLES_HABITS},
+    {"mot_cle": "The North Face tee", "type_article": "Techwear", "prix_max": 12.0, "revente_base": 30.0, "cat": CATALOG_HOMME, "size": TAILLES_HABITS},
+]
+
+def envoyer_notification_telegram(affaire):
+    message = (
+        f"🎯 <b>SNIPESTUDIO // NOUVELLE PÉPITE DÉTECTÉE</b>\n\n"
+        f"▪️ <b>{affaire['titre']}</b>\n"
+        f"▫️ <b>Achat max :</b> {affaire['prix']} € | <b>Revente :</b> {affaire['revente_finale']} €\n"
+        f"▪️ <b>Bénéfice Net :</b> +{affaire['benefice']} €\n\n"
+        f"<i>Ouvrez SnipeStudio pour verrouiller l'affaire.</i>"
+    )
+    render_url = os.environ.get("RENDER_EXTERNAL_URL", "https://vinted-bot-dptd.onrender.com")
+    keyboard = {"inline_keyboard": [[{"text": "⚡ ACCÉDER À SNIPESTUDIO", "web_app": {"url": f"{render_url}/app"}}]]}
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+    try:
+        requests.post(url, data={"chat_id": TELEGRAM_CHAT_ID, "text": message, "parse_mode": "HTML", "reply_markup": json.dumps(keyboard)}, timeout=5)
+        print("📩 [TELEGRAM] Notification SnipeStudio envoyée !", flush=True)
+    except Exception as e:
+        print(f"❌ [TELEGRAM] Erreur d'envoi: {e}", flush=True)
+
+async def scanner_vinted(browser):
+    print("🔍 [SCRAPER] Démarrage d'un cycle de scan SnipeStudio (<20€)...", flush=True)
+    try:
+        context = await browser.new_context(
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+            extra_http_headers={
+                "Accept-Language": "fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7",
+                "Sec-Ch-Ua": '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"',
+                "Sec-Ch-Ua-Mobile": "?0",
+                "Sec-Ch-Ua-Platform": '"Windows"',
+            }
+        )
+        page = await context.new_page()
+
+        recherches_shuffled = RECHERCHES.copy()
+        random.shuffle(recherches_shuffled)
+
+        for recherche in recherches_shuffled:
+            mot_cle = recherche["mot_cle"]
+            type_article = recherche["type_article"]
+            prix_max = recherche["prix_max"]
+            revente_base = recherche["revente_base"]
+            cat = recherche.get("cat", CATALOG_HOMME)
+            size = recherche.get("size", TAILLES_HABITS)
+
+            url = (
+                f"https://www.vinted.fr/vetements?search_text={urllib.parse.quote(mot_cle)}"
+                f"&price_to={prix_max}{cat}{size}{ETAT_EXCELLENT}&order=newest_first"
+            )
+            print(f"👉 [SCAN] Recherche : '{mot_cle}' (max {prix_max}€)...", flush=True)
+
+            try:
+                await page.goto(url, wait_until="domcontentloaded", timeout=15000)
+                await asyncio.sleep(random.uniform(0.8, 1.5))
+
+                items = await page.query_selector_all('[data-testid="grid-item"]')
