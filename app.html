@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>VAULT</title>
+    <title>SnipeStudio | AI Resell Engine</title>
 
-    <!-- METATAGS PWA / MODE APPLI AUTONOME iOS (Instagram Style) -->
+    <!-- METATAGS PWA / MODE APPLI AUTONOME iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Vault">
+    <meta name="apple-mobile-web-app-title" content="SnipeStudio">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#000000">
+    <meta name="theme-color" content="#0B0F19">
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -33,10 +33,11 @@
                         serif: ['"Playfair Display"', 'serif'],
                     },
                     colors: {
-                        pureBlack: '#000000',
-                        vaultGray: '#0A0A0A',
-                        cardGray: '#121212',
-                        borderGray: '#222222',
+                        slateDark: '#0B0F19',
+                        cardSlate: '#1E293B',
+                        borderSlate: '#334155',
+                        indigoBrand: '#6366F1',
+                        emeraldBrand: '#10B981',
                     }
                 }
             }
@@ -44,20 +45,20 @@
     </script>
     <style>
         body {
-            background-color: #000000;
+            background-color: #0B0F19;
             -webkit-tap-highlight-color: transparent;
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
-        .mono-gradient {
-            background: linear-gradient(135deg, #FFFFFF 20%, #737373 100%);
+        .snippet-gradient {
+            background: linear-gradient(135deg, #FFFFFF 20%, #818CF8 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        .glass-vault {
-            background: rgba(10, 10, 10, 0.92);
+        .glass-snippet {
+            background: rgba(11, 15, 25, 0.85);
             backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            border-bottom: 1px solid rgba(99, 102, 241, 0.15);
         }
         .no-scrollbar::-webkit-scrollbar {
             display: none;
@@ -70,27 +71,27 @@
 </head>
 <body class="text-slate-100 min-h-screen pb-28 select-none">
 
-    <!-- HEADER ULTIME AVEC BARRE DE RECHERCHE -->
-    <header class="sticky top-0 z-40 glass-vault px-5 py-3 pt-11">
+    <!-- HEADER SNIPESTUDIO -->
+    <header class="sticky top-0 z-40 glass-snippet px-5 py-3 pt-11">
         <div class="flex items-center justify-between mb-3">
             <div class="flex items-center space-x-3">
-                <div class="w-9 h-9 rounded-full bg-white p-[1px] shadow-2xl">
-                    <div class="w-full h-full bg-black rounded-full flex items-center justify-center">
-                        <i class="fa-solid fa-gem text-white text-[11px]"></i>
+                <div class="w-9 h-9 rounded-xl bg-indigo-600 p-[1px] shadow-lg shadow-indigo-500/20">
+                    <div class="w-full h-full bg-slateDark rounded-xl flex items-center justify-center">
+                        <i class="fa-solid fa-bullseye text-indigo-400 text-xs"></i>
                     </div>
                 </div>
                 <div>
-                    <h1 class="font-serif italic font-bold text-base leading-none tracking-widest mono-gradient">VAULT</h1>
-                    <span class="text-[7px] font-bold tracking-[0.3em] text-neutral-500 uppercase">Live Sync 60s</span>
+                    <h1 class="font-serif italic font-bold text-base leading-none tracking-wider snippet-gradient">SnipeStudio</h1>
+                    <span class="text-[7px] font-extrabold tracking-[0.25em] text-indigo-400 uppercase">AI Resell Engine</span>
                 </div>
             </div>
             
             <div class="flex items-center space-x-2">
-                <div class="bg-neutral-900 border border-neutral-800 px-3 py-1 rounded-full flex items-center space-x-2">
-                    <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
-                    <span class="text-[10px] font-bold tracking-wider text-neutral-300 uppercase" id="stat-count">0 Pépites</span>
+                <div class="bg-cardSlate border border-borderSlate px-3 py-1 rounded-full flex items-center space-x-2 shadow-inner">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emeraldBrand animate-ping"></span>
+                    <span class="text-[10px] font-bold tracking-wider text-slate-300 uppercase" id="stat-count">0 Pépites</span>
                 </div>
-                <button onclick="chargerAnnonces()" class="w-8 h-8 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-300 active:scale-95 transition">
+                <button onclick="chargerAnnonces()" class="w-8 h-8 rounded-xl bg-cardSlate border border-borderSlate flex items-center justify-center text-slate-300 active:scale-95 transition shadow-sm">
                     <i class="fa-solid fa-arrows-rotate text-[11px]" id="refresh-icon"></i>
                 </button>
             </div>
@@ -98,28 +99,28 @@
 
         <!-- RECHERCHE TEXTUELLE TEMPS RÉEL -->
         <div class="relative mb-3">
-            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-neutral-500 text-xs"></i>
-            <input type="text" id="search-input" oninput="filtrerParRecherche()" placeholder="Rechercher une pépite, marque, sneakers..." class="w-full bg-cardGray border border-neutral-800 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-neutral-600 transition">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+            <input type="text" id="search-input" oninput="filtrerParRecherche()" placeholder="Rechercher une pépite, marque, sneakers..." class="w-full bg-cardSlate border border-borderSlate rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 transition shadow-inner">
         </div>
 
         <!-- FILTRES PAR BADGES / PILLS -->
         <div class="flex space-x-2 overflow-x-auto no-scrollbar pt-1 pb-1">
-            <button onclick="filtrerMarque('TOUS')" id="btn-tous" class="px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-white text-black transition shrink-0">Tous</button>
-            <button onclick="filtrerMarque('Sneakers')" id="btn-sneakers" class="px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-neutral-900 text-neutral-400 border border-neutral-800 transition shrink-0">👟 Sneakers</button>
-            <button onclick="filtrerMarque('Ralph Lauren')" id="btn-ralph" class="px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-neutral-900 text-neutral-400 border border-neutral-800 transition shrink-0">Ralph Lauren</button>
-            <button onclick="filtrerMarque('Carhartt')" id="btn-carhartt" class="px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-neutral-900 text-neutral-400 border border-neutral-800 transition shrink-0">Carhartt</button>
-            <button onclick="filtrerMarque('Techwear')" id="btn-techwear" class="px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-neutral-900 text-neutral-400 border border-neutral-800 transition shrink-0">Techwear</button>
-            <button onclick="filtrerMarque('Streetwear')" id="btn-streetwear" class="px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-neutral-900 text-neutral-400 border border-neutral-800 transition shrink-0">Streetwear</button>
+            <button onclick="filtrerMarque('TOUS')" id="btn-tous" class="px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-indigo-600 text-white transition shrink-0 shadow-md shadow-indigo-600/30">Tous</button>
+            <button onclick="filtrerMarque('Sneakers')" id="btn-sneakers" class="px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-cardSlate text-slate-400 border border-borderSlate transition shrink-0">👟 Sneakers</button>
+            <button onclick="filtrerMarque('Ralph Lauren')" id="btn-ralph" class="px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-cardSlate text-slate-400 border border-borderSlate transition shrink-0">Ralph Lauren</button>
+            <button onclick="filtrerMarque('Carhartt')" id="btn-carhartt" class="px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-cardSlate text-slate-400 border border-borderSlate transition shrink-0">Carhartt</button>
+            <button onclick="filtrerMarque('Techwear')" id="btn-techwear" class="px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-cardSlate text-slate-400 border border-borderSlate transition shrink-0">Techwear</button>
+            <button onclick="filtrerMarque('Streetwear')" id="btn-streetwear" class="px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-cardSlate text-slate-400 border border-borderSlate transition shrink-0">Streetwear</button>
         </div>
     </header>
 
-    <!-- MAIN FEED (SCROLL INFINI) -->
+    <!-- MAIN FEED -->
     <main class="p-4 max-w-md mx-auto">
         
         <!-- BARRE DE TRI -->
         <div class="flex items-center justify-between mb-4 px-1">
-            <span class="text-[10px] font-extrabold uppercase tracking-[0.2em] text-neutral-500">Flux En Direct</span>
-            <select id="tri-select" onchange="triAnnonces()" class="bg-cardGray border border-neutral-800 text-neutral-300 text-[10px] rounded-lg px-2 py-1 font-bold focus:outline-none">
+            <span class="text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400">Flux En Direct</span>
+            <select id="tri-select" onchange="triAnnonces()" class="bg-cardSlate border border-borderSlate text-slate-300 text-[10px] rounded-lg px-2.5 py-1.5 font-bold focus:outline-none focus:border-indigo-500">
                 <option value="recent">Plus Récent</option>
                 <option value="benefice">Bénéfice Max</option>
                 <option value="prix_asc">Prix Croissant</option>
@@ -128,10 +129,10 @@
 
         <!-- SKELETON LOADING -->
         <div id="loading-state" class="grid grid-cols-2 gap-3">
-            <div class="bg-cardGray rounded-2xl h-72 animate-pulse border border-neutral-900"></div>
-            <div class="bg-cardGray rounded-2xl h-72 animate-pulse border border-neutral-900"></div>
-            <div class="bg-cardGray rounded-2xl h-72 animate-pulse border border-neutral-900"></div>
-            <div class="bg-cardGray rounded-2xl h-72 animate-pulse border border-neutral-900"></div>
+            <div class="bg-cardSlate rounded-2xl h-72 animate-pulse border border-borderSlate/50"></div>
+            <div class="bg-cardSlate rounded-2xl h-72 animate-pulse border border-borderSlate/50"></div>
+            <div class="bg-cardSlate rounded-2xl h-72 animate-pulse border border-borderSlate/50"></div>
+            <div class="bg-cardSlate rounded-2xl h-72 animate-pulse border border-borderSlate/50"></div>
         </div>
 
         <!-- GRILLE D'ARTICLES -->
@@ -141,46 +142,46 @@
     </main>
 
     <!-- POPUP MODAL SHOWROOM -->
-    <div id="product-modal" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl hidden flex-col justify-end transition-all duration-300">
-        <div id="modal-content-box" class="bg-vaultGray border-t border-neutral-800 rounded-t-[36px] max-h-[88vh] overflow-y-auto p-6 transform translate-y-full transition-transform duration-300 ease-out shadow-2xl pb-12">
+    <div id="product-modal" class="fixed inset-0 z-50 bg-slateDark/95 backdrop-blur-xl hidden flex-col justify-end transition-all duration-300">
+        <div id="modal-content-box" class="bg-cardSlate border-t border-borderSlate rounded-t-[36px] max-h-[88vh] overflow-y-auto p-6 transform translate-y-full transition-transform duration-300 ease-out shadow-2xl pb-12">
             
-            <div class="w-10 h-1 bg-neutral-800 rounded-full mx-auto mb-5"></div>
+            <div class="w-10 h-1 bg-borderSlate rounded-full mx-auto mb-5"></div>
             
-            <div class="relative rounded-2xl overflow-hidden mb-5 bg-black aspect-square border border-neutral-800 shadow-2xl">
-                <img id="modal-img" src="" referrerpolicy="no-referrer" alt="Produit Vault" class="w-full h-full object-cover">
+            <div class="relative rounded-2xl overflow-hidden mb-5 bg-slateDark aspect-square border border-borderSlate shadow-xl">
+                <img id="modal-img" src="" referrerpolicy="no-referrer" alt="Produit SnipeStudio" class="w-full h-full object-cover">
             </div>
 
             <div class="flex items-center justify-between mb-2">
-                <span id="modal-cat" class="text-[10px] font-black text-neutral-400 uppercase tracking-[0.25em]"></span>
-                <div class="flex items-center space-x-1 text-white text-xs font-bold bg-neutral-900 px-2.5 py-1 rounded-lg border border-neutral-800">
-                    <i class="fa-solid fa-gem text-[10px] text-white"></i>
-                    <span>Verified Vault</span>
+                <span id="modal-cat" class="text-[10px] font-black text-indigo-400 uppercase tracking-[0.25em]"></span>
+                <div class="flex items-center space-x-1 text-slate-200 text-xs font-bold bg-slateDark px-2.5 py-1 rounded-lg border border-borderSlate">
+                    <i class="fa-solid fa-sparkles text-[10px] text-indigo-400"></i>
+                    <span>AI Verified</span>
                 </div>
             </div>
 
             <h3 id="modal-title" class="text-sm font-bold text-white mb-5 leading-snug"></h3>
 
-            <div class="grid grid-cols-3 gap-2 bg-cardGray p-4 rounded-2xl border border-neutral-900 mb-6 text-center">
+            <div class="grid grid-cols-3 gap-2 bg-slateDark p-4 rounded-2xl border border-borderSlate mb-6 text-center shadow-inner">
                 <div>
-                    <span class="block text-[8px] text-neutral-500 font-bold uppercase tracking-wider">Achat</span>
+                    <span class="block text-[8px] text-slate-400 font-bold uppercase tracking-wider">Achat max</span>
                     <span id="modal-prix" class="text-xs font-bold text-white mt-1 block"></span>
                 </div>
-                <div class="border-x border-neutral-800">
-                    <span class="block text-[8px] text-neutral-500 font-bold uppercase tracking-wider">Revente</span>
-                    <span id="modal-revente" class="text-xs font-bold text-neutral-300 mt-1 block"></span>
+                <div class="border-x border-borderSlate">
+                    <span class="block text-[8px] text-slate-400 font-bold uppercase tracking-wider">Revente</span>
+                    <span id="modal-revente" class="text-xs font-bold text-slate-300 mt-1 block"></span>
                 </div>
                 <div>
-                    <span class="block text-[8px] text-neutral-500 font-bold uppercase tracking-wider">Bénéfice</span>
-                    <span id="modal-benefice" class="text-xs font-black text-white mt-1 block"></span>
+                    <span class="block text-[8px] text-slate-400 font-bold uppercase tracking-wider">Bénéfice</span>
+                    <span id="modal-benefice" class="text-xs font-black text-emeraldBrand mt-1 block"></span>
                 </div>
             </div>
 
             <div class="grid grid-cols-2 gap-3">
-                <button onclick="ouvrirLienVinted()" class="w-full py-4 bg-white text-black font-black text-[11px] uppercase tracking-widest rounded-2xl flex items-center justify-center space-x-2 shadow-xl active:scale-95 transition">
+                <button onclick="ouvrirLienVinted()" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-[11px] uppercase tracking-widest rounded-2xl flex items-center justify-center space-x-2 shadow-lg shadow-indigo-600/30 active:scale-95 transition">
                     <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
                     <span>Acheter Vinted</span>
                 </button>
-                <button onclick="fermerModal()" class="w-full py-4 bg-neutral-900 text-neutral-300 font-bold text-[11px] uppercase tracking-widest rounded-2xl border border-neutral-800 active:scale-95 transition">
+                <button onclick="fermerModal()" class="w-full py-4 bg-slateDark text-slate-300 font-bold text-[11px] uppercase tracking-widest rounded-2xl border border-borderSlate active:scale-95 transition">
                     Fermer
                 </button>
             </div>
@@ -196,7 +197,7 @@
         if (window.Telegram && window.Telegram.WebApp) {
             window.Telegram.WebApp.ready();
             window.Telegram.WebApp.expand();
-            window.Telegram.WebApp.setHeaderColor('#000000');
+            window.Telegram.WebApp.setHeaderColor('#0B0F19');
         }
 
         function ouvrirLienVinted() {
@@ -237,7 +238,7 @@
             
             ['tous', 'sneakers', 'ralph', 'carhartt', 'techwear', 'streetwear'].forEach(id => {
                 const btn = document.getElementById(`btn-${id}`);
-                if (btn) btn.className = "px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-neutral-900 text-neutral-400 border border-neutral-800 transition shrink-0";
+                if (btn) btn.className = "px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-cardSlate text-slate-400 border border-borderSlate transition shrink-0";
             });
 
             const activeBtnId = marque === 'TOUS' ? 'btn-tous' : 
@@ -247,7 +248,7 @@
                                 marque === 'Techwear' ? 'btn-techwear' : 'btn-streetwear';
             
             const activeBtn = document.getElementById(activeBtnId);
-            if (activeBtn) activeBtn.className = "px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-white text-black transition shrink-0";
+            if (activeBtn) activeBtn.className = "px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-indigo-600 text-white transition shrink-0 shadow-md shadow-indigo-600/30";
 
             afficherArticles();
         }
@@ -285,8 +286,8 @@
 
             if (articlesFiltres.length === 0) {
                 container.innerHTML = `
-                    <div class="col-span-2 text-center py-24 text-neutral-600">
-                        <i class="fa-solid fa-gem text-2xl text-neutral-700 mb-3 block"></i>
+                    <div class="col-span-2 text-center py-24 text-slate-500">
+                        <i class="fa-solid fa-bullseye text-2xl text-slate-600 mb-3 block"></i>
                         <p class="text-[11px] font-medium tracking-wider uppercase">Aucune pépite trouvée...</p>
                     </div>
                 `;
@@ -295,21 +296,21 @@
 
             articlesFiltres.forEach(art => {
                 const card = document.createElement('div');
-                card.className = "bg-cardGray rounded-2xl border border-neutral-900 overflow-hidden flex flex-col justify-between active:scale-[0.97] transition duration-200 cursor-pointer shadow-xl relative group";
+                card.className = "bg-cardSlate rounded-2xl border border-borderSlate/60 overflow-hidden flex flex-col justify-between active:scale-[0.97] transition duration-200 cursor-pointer shadow-xl relative group hover:border-indigo-500/50";
                 card.onclick = () => ouvrirModal(art);
 
                 card.innerHTML = `
-                    <div class="relative aspect-square bg-black overflow-hidden">
-                        <img src="${art.image}" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src='${FALLBACK_IMG}';" alt="${art.titre}" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition duration-500">
-                        <span class="absolute top-2 left-2 bg-black/90 backdrop-blur-md text-white text-[9px] font-extrabold px-2 py-0.5 rounded-lg border border-neutral-800">
+                    <div class="relative aspect-square bg-slateDark overflow-hidden">
+                        <img src="${art.image}" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src='${FALLBACK_IMG}';" alt="${art.titre}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        <span class="absolute top-2 left-2 bg-slateDark/90 backdrop-blur-md text-emeraldBrand text-[9px] font-black px-2 py-0.5 rounded-lg border border-borderSlate shadow-sm">
                             +${art.benefice} €
                         </span>
                     </div>
                     <div class="p-3.5 flex flex-col justify-between flex-1">
-                        <h4 class="text-[11px] font-medium text-neutral-200 line-clamp-2 leading-tight mb-3">${art.titre}</h4>
-                        <div class="flex items-center justify-between pt-2 border-t border-neutral-900">
+                        <h4 class="text-[11px] font-medium text-slate-200 line-clamp-2 leading-tight mb-3">${art.titre}</h4>
+                        <div class="flex items-center justify-between pt-2 border-t border-borderSlate/60">
                             <span class="text-xs font-extrabold text-white">${art.prix} €</span>
-                            <span class="text-[9px] font-bold text-neutral-400">
+                            <span class="text-[9px] font-bold text-emerald-400">
                                 📈 ${art.revente} €
                             </span>
                         </div>
@@ -329,7 +330,7 @@
                 this.src = FALLBACK_IMG;
             };
 
-            document.getElementById('modal-cat').innerText = article.type_article || 'VAULT SELECTION';
+            document.getElementById('modal-cat').innerText = article.type_article || 'SNIPESTUDIO SELECTION';
             document.getElementById('modal-title').innerText = article.titre;
             document.getElementById('modal-prix').innerText = `${article.prix} €`;
             document.getElementById('modal-revente').innerText = `${article.revente} €`;
