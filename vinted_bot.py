@@ -288,6 +288,14 @@ def lancer_bot_async():
     async def run_loop():
         init_db()
         print("🚀 [SYSTEM] SnipeStudio Engine activé (Budget max < 20€) !", flush=True)
+        
+        # Installation automatique de Chromium pour Render / local
+        try:
+            print("📦 [PLAYWRIGHT] Vérification / Installation de Chromium...", flush=True)
+            os.system("python -m playwright install chromium")
+        except Exception as e:
+            print(f"⚠️ [PLAYWRIGHT] Erreur installation auto: {e}", flush=True)
+
         while True:
             try:
                 async with async_playwright() as p:
