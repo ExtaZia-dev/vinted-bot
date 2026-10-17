@@ -230,4 +230,4 @@ async def scanner_vinted(browser):
                 await page.goto(url, wait_until="domcontentloaded", timeout=15000)
                 await asyncio.sleep(random.uniform(0.8, 1.5))
 
-                items = await page.query_selector_all('[data-testid="grid-item"]')
+                items = await page.query_
