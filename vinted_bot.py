@@ -230,4 +230,92 @@ async def scanner_vinted(browser):
                 await page.goto(url, wait_until="domcontentloaded", timeout=15000)
                 await asyncio.sleep(random.uniform(0.8, 1.5))
 
-                items = await page.query_
+                items = await page.query_selector_all('[data-testid="grid-item"]')
+                print(f"   -> {len(items)} articles trouvés.", flush=True)
+
+                for item in items[:10]:
+                    title_elem = await item.query_selector('[data-testid*="title"], p')
+                    price_elem = await item.query_selector('[data-testid*="price"], h3')
+                    link_elem = await item.query_selector("a")
+                    img_elem = await item.query_selector("img")
+
+                    titre = await title_elem.inner_text() if title_elem else ""
+                    titre_lower = titre.lower()
+
+                    if any(mot in titre_lower for mot in MOTS_CLES_EXCLUS):
+                        continue
+
+                    prix_text = await price_elem.inner_text() if price_elem else "0"
+                    lien = await link_elem.get_attribute("href") if link_elem else ""
+                    image_url = await img_elem.get_attribute("src") if img_elem else ""
+
+                    if lien and not lien.startswith("http"):
+                        lien = f"https://www.vinted.fr{lien}"
+
+                    try:
+                        prix = float(prix_text.replace("€", "").replace(",", ".").replace(" ", "").strip())
+                    except ValueError:
+                        prix = 0.0
+
+                    if 0 < prix <= prix_max and lien:
+                        est_nouveau = enregistrer_annonce(lien, prix, titre, image_url, type_article)
+                        if est_nouveau:
+                            print(f"✨ [NOUVEAU] Pépite <20€ trouvée : {titre} - {prix}€", flush=True)
+                            frais = 0.70 + (prix * 0.05) + 3.50
+                            benefice = round(revente_base - (prix + frais), 2)
+                            
+                            if benefice >= 8.0:
+                                affaire = {
+                                    "titre": titre.strip(),
+                                    "prix": prix,
+                                    "revente_finale": revente_base,
+                                    "benefice": benefice,
+                                    "lien": lien
+                                }
+                                envoyer_notification_telegram(affaire)
+
+            except Exception as e:
+                print(f"⚠️ [SCAN] Erreur sur '{mot_cle}': {e}", flush=True)
+
+        await context.close()
+    except Exception as e:
+        print(f"❌ [SCRAPER] Erreur globale: {e}", flush=True)
+
+def lancer_bot_async():
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    
+    async def run_loop():
+        init_db()
+        print("🚀 [SYSTEM] SnipeStudio Engine activé (Budget max < 20€) !", flush=True)
+        while True:
+            try:
+                async with async_playwright() as p:
+                    browser = await p.chromium.launch(
+                        headless=True,
+                        args=[
+                            "--no-sandbox",
+                            "--disable-setuid-sandbox",
+                            "--disable-dev-shm-usage",
+                            "--disable-gpu",
+                            "--single-process",
+                            "--no-zygote",
+                            "--disable-blink-features=AutomationControlled",
+                        ],
+                    )
+                    await scanner_vinted(browser)
+                    await browser.close()
+            except Exception as e:
+                print(f"❌ [PLAYWRIGHT] Erreur lancement: {e}", flush=True)
+
+            print(f"💤 [SYSTEM] Pause de {DELAI_BOUCLE_SECONDES} secondes...", flush=True)
+            await asyncio.sleep(DELAI_BOUCLE_SECONDES)
+
+    loop.run_until_complete(run_loop())
+
+bot_thread = threading.Thread(target=lancer_bot_async, daemon=True)
+bot_thread.start()
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port, debug=False, use_reloader=False)
